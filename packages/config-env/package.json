@@ -1,0 +1,13 @@
+{
+  "name": "@repo/config-env",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.8",
+    "zod": "^4.6.7"
+  }
+}
