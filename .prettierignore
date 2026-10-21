@@ -1,0 +1,8 @@
+node_modules
+dist
+out-tsc
+.angular
+.turbo
+coverage
+package-lock.json
+.env.example
