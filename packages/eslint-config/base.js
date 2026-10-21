@@ -1,10 +1,10 @@
-import js from "@eslint/js";
-import eslintConfigPrettier from "eslint-config-prettier";
-import turboPlugin from "eslint-plugin-turbo";
-import onlyWarn from "eslint-plugin-only-warn";
-import tseslint from "typescript-eslint";
+import js from '@eslint/js';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import turboPlugin from 'eslint-plugin-turbo';
+import onlyWarn from 'eslint-plugin-only-warn';
+import tseslint from 'typescript-eslint';
 
-const sourceFiles = ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"];
+const sourceFiles = ['**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'];
 
 /**
  * A shared ESLint flat configuration for the repository.
@@ -23,7 +23,7 @@ export const config = tseslint.config(
           turbo: turboPlugin,
         },
         rules: {
-          "turbo/no-undeclared-env-vars": "warn",
+          'turbo/no-undeclared-env-vars': 'warn',
         },
       },
       {
@@ -34,6 +34,6 @@ export const config = tseslint.config(
     ],
   },
   {
-    ignores: ["**/dist/**", "**/out-tsc/**", "**/.angular/**", "**/node_modules/**"],
+    ignores: ['**/dist/**', '**/out-tsc/**', '**/.angular/**', '**/node_modules/**'],
   },
 );
