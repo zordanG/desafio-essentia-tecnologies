@@ -10,7 +10,7 @@ import { CreateTaskDto, Task, UpdateTaskDto } from '../models/task.model';
 export class TodoService {
   private readonly http = inject(HttpClient);
   private readonly config = inject(AppConfigService);
-  private readonly baseUrl = `${this.config.apiBaseUrl}/todos`;
+  private readonly baseUrl = `${this.config.apiBaseUrl}/api/todos`;
 
   list(): Observable<Task[]> {
     return this.http.get<Task[]>(this.baseUrl);

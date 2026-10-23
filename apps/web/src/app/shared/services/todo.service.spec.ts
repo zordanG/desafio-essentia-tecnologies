@@ -9,7 +9,7 @@ import { TodoService } from './todo.service';
 import type { Task } from '../models/task.model';
 
 const API_BASE_URL = 'http://localhost:3001';
-const API_URL = `${API_BASE_URL}/todos`;
+const API_URL = `${API_BASE_URL}/api/todos`;
 
 const TASK: Task = {
   id: '9b2f4c1e-6f38-4f6e-9f8a-3a7c1d2e4b5a',
