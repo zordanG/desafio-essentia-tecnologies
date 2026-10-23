@@ -1,7 +1,18 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
-  "globalPassThroughEnv": ["PORT", "HOST", "NODE_ENV", "LOG_LEVEL"],
+  "globalPassThroughEnv": [
+    "PORT",
+    "HOST",
+    "NODE_ENV",
+    "LOG_LEVEL",
+    "MYSQL_HOST",
+    "MYSQL_PORT",
+    "MYSQL_USER",
+    "MYSQL_PASSWORD",
+    "MYSQL_ROOT_PASSWORD",
+    "MYSQL_DATABASE"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -13,6 +24,10 @@
     },
     "check-types": {
       "dependsOn": ["^check-types"]
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "cache": false
     },
     "dev": {
       "cache": false,

@@ -1,0 +1,6 @@
+{
+  "service": "api",
+  "migrations": "db/migrations",
+  "seeds": "db/seeds",
+  "ownedTables": ["tasks"]
+}

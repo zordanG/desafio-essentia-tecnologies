@@ -1,0 +1,26 @@
+{
+  "name": "@repo/db-tools",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "dbmigrate": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "check-types": "tsc --noEmit",
+    "test": "node --test test"
+  },
+  "dependencies": {
+    "@repo/config-env": "*",
+    "mysql2": "^3.24.6",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "@types/node": "^26.6.5",
+    "typescript": "^6.0.3"
+  }
+}

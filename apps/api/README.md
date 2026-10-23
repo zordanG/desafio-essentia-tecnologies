@@ -20,6 +20,11 @@ every problem at once.
 | `PORT`            | No       | `3001`       | HTTP port the server listens on.                                                         |
 | `HOST`            | Yes      | -            | Interface the server binds to. `0.0.0.0` accepts external connections.                   |
 | `ALLOWED_ORIGINS` | Yes      | -            | Comma separated list of CORS origins.                                                    |
+| `MYSQL_HOST`      | Yes      | -            | MySQL host the API connects to.                                                          |
+| `MYSQL_PORT`      | No       | `3306`       | MySQL port.                                                                              |
+| `MYSQL_USER`      | Yes      | -            | MySQL user.                                                                              |
+| `MYSQL_PASSWORD`  | Yes      | -            | MySQL password.                                                                          |
+| `MYSQL_DATABASE`  | Yes      | -            | MySQL database name.                                                                     |
 
 > `NODE_ENV` defaults to `production` so a deployment that forgets to set it does
 > not expose the Swagger UI at `/docs` or stack traces in the logs. Locally, keep
@@ -45,6 +50,41 @@ Run them from this directory, or from the repository root through Turborepo.
 | `GET`  | `/docs`   | Swagger UI (not in production). |
 
 Logs are written as one JSON line per event on stdout.
+
+## Database
+
+The API opens a MySQL pool on the first query, using the `MYSQL_*` variables
+above. Queries are written inline in the controllers and every row is parsed
+with Zod in `src/config/db.query.ts`.
+
+Migrations and seeds are managed by the `@repo/db-tools` CLI for this service.
+The service config is `apps/api/db-tools.json`, and the SQL files live under
+`apps/api/db/`. See `db/README.md` for the full reference. From the repository
+root:
+
+```bash
+npm run db:migrate        # apply pending migrations
+npm run db:migrate:status # show what is applied
+npm run db:reset -- --yes --seed
+```
+
+The `tasks` table stores `id` (UUID), `title`, `description`, `completed`,
+`created_at` and `updated_at`.
+
+## Tests
+
+The API integration tests call `buildApp().inject()` against a temporary MySQL
+database created from the migrations in `apps/api/db/migrations/up`, then drop
+it. Start the container and run from the repository root:
+
+```bash
+npm test
+# or only this workspace:
+npm test -w api
+```
+
+The tests read the root `.env` and require `MYSQL_ROOT_PASSWORD` to create the
+temporary database.
 
 ## Errors
 

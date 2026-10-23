@@ -7,9 +7,17 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,js,mjs,cjs,html,css,md,yml}\"",
     "check-types": "turbo run check-types",
+    "test": "turbo run test",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
-    "db:logs": "docker compose logs -f mysql"
+    "db:logs": "docker compose logs -f mysql",
+    "db:build": "npm run build -w @repo/db-tools",
+    "db:migrate": "npm run db:build && node packages/db-tools/dist/cli.js migrate up --dir apps/api",
+    "db:migrate:status": "npm run db:build && node packages/db-tools/dist/cli.js migrate status --dir apps/api",
+    "db:migrate:down": "npm run db:build && node packages/db-tools/dist/cli.js migrate down --dir apps/api",
+    "db:reset": "npm run db:build && node packages/db-tools/dist/cli.js reset --dir apps/api",
+    "db:seed": "npm run db:build && node packages/db-tools/dist/cli.js seed --dir apps/api",
+    "db:seed:list": "npm run db:build && node packages/db-tools/dist/cli.js seed --list --dir apps/api"
   },
   "devDependencies": {
     "prettier": "3.9.6",
