@@ -13,6 +13,9 @@ import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
 import { routes } from './routes/routes.js';
 import errorHandlerPlugin from './plugins/error.plugin.js';
+import authPlugin from './plugins/auth.plugin.js';
+import rateLimiterPlugin from './plugins/rateLimiter.plugin.js';
+import redisPlugin from './plugins/redis.plugin.js';
 
 function buildApp(): FastifyInstance {
   const app = fastify().withTypeProvider<ZodTypeProvider>();
@@ -29,6 +32,21 @@ function buildApp(): FastifyInstance {
         description: 'REST API for managing tasks.',
         version: '1.0.0',
       },
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+          cookieAuth: {
+            type: 'apiKey',
+            in: 'cookie',
+            name: 'accessToken',
+          },
+        },
+      },
+      security: [{ cookieAuth: [] }],
     },
     transform: jsonSchemaTransform,
   });
@@ -50,6 +68,9 @@ function buildApp(): FastifyInstance {
   });
 
   // Custom Plugins
+  app.register(redisPlugin);
+  app.register(rateLimiterPlugin);
+  app.register(authPlugin);
   app.register(errorHandlerPlugin);
 
   // Access log, in the same format as the rest of the application

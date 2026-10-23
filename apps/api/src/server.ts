@@ -2,6 +2,7 @@ import { env } from './config/env.js';
 import { logger } from './config/logger.js';
 import { buildApp } from './api/index.js';
 import { PoolController } from './config/db.js';
+import { RedisInstance } from './config/redis.js';
 
 const app = buildApp();
 
@@ -18,6 +19,8 @@ async function shutdownEverything(signal: string): Promise<void> {
 
   try {
     await app.close();
+
+    RedisInstance.closeInstance();
     await PoolController.shutdown();
   } catch (error) {
     logger.error('Failed to close server', { err: error });

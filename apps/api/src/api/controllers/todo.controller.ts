@@ -14,6 +14,12 @@ import {
 
 const TaskIdRow = TaskRowSchema.pick({ id: true });
 
+function getUserId(request: { user?: { userId?: string } }): string {
+  const user = request.user;
+  if (!user?.userId) throw AppError.unauthorized();
+  return user.userId;
+}
+
 export default async function route(app: FastifyTypedInstance) {
   app.post(
     '/todos',
@@ -25,21 +31,23 @@ export default async function route(app: FastifyTypedInstance) {
         response: {
           201: TaskSchema,
           400: ErrorDefaults[400],
+          401: ErrorDefaults[401],
           500: ErrorDefaults[500],
         },
       },
     },
     async (request, reply) => {
+      const userId = getUserId(request);
       const { title, description } = request.body;
 
       const task = await PoolController.transaction(async (client) => {
         const id = randomUUID();
 
-        await runInTx(client, 'INSERT INTO tasks (id, title, description) VALUES (?, ?, ?)', [
-          id,
-          title,
-          description ?? null,
-        ]);
+        await runInTx(
+          client,
+          'INSERT INTO tasks (id, title, description, owner_id) VALUES (?, ?, ?, ?)',
+          [id, title, description ?? null, userId],
+        );
 
         return oneInTx(client, TaskRowSchema, 'SELECT * FROM tasks WHERE id = ?', [id]);
       });
@@ -53,15 +61,21 @@ export default async function route(app: FastifyTypedInstance) {
     {
       schema: {
         tags: ['Todos'],
-        description: 'List tasks',
+        description: 'List tasks for authenticated user',
         response: {
           200: z.array(TaskSchema),
+          401: ErrorDefaults[401],
           500: ErrorDefaults[500],
         },
       },
     },
-    async () => {
-      return rows(TaskRowSchema, 'SELECT * FROM tasks ORDER BY created_at DESC');
+    async (request) => {
+      const userId = getUserId(request);
+      return rows(
+        TaskRowSchema,
+        'SELECT * FROM tasks WHERE owner_id = ? ORDER BY created_at DESC',
+        [userId],
+      );
     },
   );
 
@@ -75,15 +89,21 @@ export default async function route(app: FastifyTypedInstance) {
         response: {
           200: TaskSchema,
           400: ErrorDefaults[400],
+          401: ErrorDefaults[401],
           404: ErrorDefaults[404],
           500: ErrorDefaults[500],
         },
       },
     },
     async (request) => {
+      const userId = getUserId(request);
       const { id } = request.params;
 
-      const task = await oneOrNone(TaskRowSchema, 'SELECT * FROM tasks WHERE id = ?', [id]);
+      const task = await oneOrNone(
+        TaskRowSchema,
+        'SELECT * FROM tasks WHERE id = ? AND owner_id = ?',
+        [id, userId],
+      );
 
       if (!task) throw AppError.notFound('Task not found');
 
@@ -102,12 +122,14 @@ export default async function route(app: FastifyTypedInstance) {
         response: {
           200: TaskSchema,
           400: ErrorDefaults[400],
+          401: ErrorDefaults[401],
           404: ErrorDefaults[404],
           500: ErrorDefaults[500],
         },
       },
     },
     async (request) => {
+      const userId = getUserId(request);
       const { id } = request.params;
       const { title, description, completed } = request.body;
 
@@ -136,8 +158,8 @@ export default async function route(app: FastifyTypedInstance) {
         const existing = await oneOrNoneInTx(
           client,
           TaskIdRow,
-          'SELECT id FROM tasks WHERE id = ?',
-          [id],
+          'SELECT id FROM tasks WHERE id = ? AND owner_id = ?',
+          [id, userId],
         );
 
         if (!existing) throw AppError.notFound('Task not found');
@@ -162,20 +184,22 @@ export default async function route(app: FastifyTypedInstance) {
         response: {
           204: z.undefined(),
           400: ErrorDefaults[400],
+          401: ErrorDefaults[401],
           404: ErrorDefaults[404],
           500: ErrorDefaults[500],
         },
       },
     },
     async (request, reply) => {
+      const userId = getUserId(request);
       const { id } = request.params;
 
       await PoolController.transaction(async (client) => {
         const existing = await oneOrNoneInTx(
           client,
           TaskIdRow,
-          'SELECT id FROM tasks WHERE id = ?',
-          [id],
+          'SELECT id FROM tasks WHERE id = ? AND owner_id = ?',
+          [id, userId],
         );
 
         if (!existing) throw AppError.notFound('Task not found');

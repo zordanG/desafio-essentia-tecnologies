@@ -2,12 +2,7 @@ import assert from 'node:assert/strict';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
-import {
-  createTestDatabase,
-  makeFixture,
-  plain,
-  runCli,
-} from '../test-support/helpers.mjs';
+import { createTestDatabase, makeFixture, plain, runCli } from '../test-support/helpers.mjs';
 
 const baseMigrations = {
   up: {
@@ -189,10 +184,7 @@ test('Loads the database env from the CLI process env', async () => {
   const ctx = await setup();
 
   try {
-    const result = await runCli(
-      ['migrate', 'up', '--dir', ctx.fixture.root],
-      ctx.env,
-    );
+    const result = await runCli(['migrate', 'up', '--dir', ctx.fixture.root], ctx.env);
 
     assert.equal(result.code, 0, plain(result.stderr));
     assert.ok(await tableExists(ctx.database, 'tasks'));

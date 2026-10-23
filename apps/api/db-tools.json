@@ -2,5 +2,5 @@
   "service": "api",
   "migrations": "db/migrations",
   "seeds": "db/seeds",
-  "ownedTables": ["tasks"]
+  "ownedTables": ["tasks", "users", "refresh_sessions"]
 }

@@ -23,6 +23,11 @@ const schema = z.object({
   MYSQL_USER: z.string(),
   MYSQL_PASSWORD: z.string(),
   MYSQL_DATABASE: z.string(),
+  JWT_SECRET: z.string().min(32),
+  COOKIE_SECRET: z.string().min(32).optional(),
+  REDIS_HOST: z.string(),
+  REDIS_PORT: z.coerce.number().int().positive().default(6379),
+  REDIS_PASSWORD: z.string(),
 });
 
 export const env = createEnv(schema);

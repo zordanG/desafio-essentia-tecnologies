@@ -12,7 +12,12 @@
     "MYSQL_PASSWORD",
     "MYSQL_ROOT_PASSWORD",
     "MYSQL_DATABASE",
-    "API_BASE_URL"
+    "API_BASE_URL",
+    "JWT_SECRET",
+    "COOKIE_SECRET",
+    "REDIS_HOST",
+    "REDIS_PORT",
+    "REDIS_PASSWORD"
   ],
   "tasks": {
     "build": {
