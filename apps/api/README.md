@@ -44,10 +44,15 @@ Run them from this directory, or from the repository root through Turborepo.
 
 ## Endpoints
 
-| Method | Path      | Response                        |
-| ------ | --------- | ------------------------------- |
-| `GET`  | `/health` | `{ "status": "ok" }`            |
-| `GET`  | `/docs`   | Swagger UI (not in production). |
+| Method   | Path         | Response                        |
+| -------- | ------------ | ------------------------------- |
+| `GET`    | `/health`    | `{ "status": "ok" }`            |
+| `GET`    | `/docs`      | Swagger UI (not in production). |
+| `POST`   | `/todos`     | Creates a task.                 |
+| `GET`    | `/todos`     | Lists tasks, newest first.      |
+| `GET`    | `/todos/:id` | Returns one task.               |
+| `PATCH`  | `/todos/:id` | Updates a task.                 |
+| `DELETE` | `/todos/:id` | Deletes a task.                 |
 
 Logs are written as one JSON line per event on stdout.
 

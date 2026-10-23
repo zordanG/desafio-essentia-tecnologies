@@ -11,6 +11,7 @@ import {
 import fastifyHelmet from '@fastify/helmet';
 import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
+import { routes } from './routes/routes.js';
 import errorHandlerPlugin from './plugins/error.plugin.js';
 
 function buildApp(): FastifyInstance {
@@ -73,9 +74,7 @@ function buildApp(): FastifyInstance {
   });
 
   // Routes
-  app.register(async (routes) => {
-    routes.get('/health', async () => ({ status: 'ok' }));
-  });
+  app.register(routes);
 
   return app;
 }
