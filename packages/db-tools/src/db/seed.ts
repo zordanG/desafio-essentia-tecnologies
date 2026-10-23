@@ -124,7 +124,7 @@ export async function run(argv: string[]): Promise<void> {
     return;
   }
 
-  loadServiceEnv(cfg.root);
+  loadServiceEnv();
   const client = await connect(getDbEnv());
 
   try {

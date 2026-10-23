@@ -485,7 +485,7 @@ export async function run(argv: string[]): Promise<void> {
   }
 
   const cfg = loadConfig(dir);
-  loadServiceEnv(cfg.root);
+  loadServiceEnv();
   const client = await connect(getDbEnv());
 
   try {

@@ -9,9 +9,8 @@ Fastify HTTP API for the TechX task management app.
 
 ## Environment
 
-The API reads the single `.env` file at the repository root and validates it at
-boot. Missing or invalid variables abort the startup with an error listing
-every problem at once.
+The API reads the root `.env` and validates it at boot. Missing or invalid
+variables abort startup with an error listing every problem at once.
 
 | Variable          | Required | Default      | Description                                                                              |
 | ----------------- | -------- | ------------ | ---------------------------------------------------------------------------------------- |

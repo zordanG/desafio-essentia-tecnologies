@@ -56,7 +56,7 @@ export async function run(argv: string[]): Promise<void> {
   }
 
   const cfg = loadConfig(dir);
-  loadServiceEnv(cfg.root);
+  loadServiceEnv();
 
   if (getCliEnv().NODE_ENV === 'production' && !opts.force) {
     console.error(

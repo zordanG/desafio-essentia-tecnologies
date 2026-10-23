@@ -19,12 +19,9 @@ export type DbEnv = z.infer<typeof dbSchema>;
 
 const repositoryRoot = path.resolve(import.meta.dirname, '../../../..');
 
-/**
- * Loads the selected service `.env` first and the repository root `.env` as a
- * fallback. Variables already present in the process take precedence.
- */
-export function loadServiceEnv(root: string): void {
-  loadEnv([path.join(root, '.env'), path.join(repositoryRoot, '.env')]);
+/** Loads the repository root `.env`. Variables already present in the process win. */
+export function loadServiceEnv(): void {
+  loadEnv(path.join(repositoryRoot, '.env'));
 }
 
 export function getCliEnv(source: EnvSource = process.env): CliEnv {

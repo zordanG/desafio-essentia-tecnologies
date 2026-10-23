@@ -2,7 +2,7 @@ import { createEnv, loadEnv } from '@repo/config-env';
 
 import { z } from 'zod';
 
-loadEnv();
+loadEnv('../../.env');
 
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('production'),

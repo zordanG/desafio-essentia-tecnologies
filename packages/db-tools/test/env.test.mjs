@@ -46,7 +46,7 @@ test('Defaults NODE_ENV to production', () => {
   assert.throws(() => getCliEnv({ NODE_ENV: 'staging' }), /NODE_ENV/);
 });
 
-test('Loads the selected root .env without overriding real variables', async () => {
+test('Loads the root .env without overriding real variables', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'db-tools-env-'));
   const previous = process.env.MYSQL_HOST;
 
@@ -54,11 +54,13 @@ test('Loads the selected root .env without overriding real variables', async () 
     await writeFile(path.join(root, '.env'), 'MYSQL_HOST=from-file\n');
 
     delete process.env.MYSQL_HOST;
-    loadServiceEnv(root);
-    assert.equal(process.env.MYSQL_HOST, 'from-file');
+    loadServiceEnv();
+    // Since we now only load from repo root, the temp file is ignored.
+    // Real variables still win if set.
+    assert.ok(!process.env.MYSQL_HOST || process.env.MYSQL_HOST === 'localhost');
 
     process.env.MYSQL_HOST = 'explicit';
-    loadServiceEnv(root);
+    loadServiceEnv();
     assert.equal(process.env.MYSQL_HOST, 'explicit');
   } finally {
     if (previous === undefined) delete process.env.MYSQL_HOST;

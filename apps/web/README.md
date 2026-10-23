@@ -121,10 +121,11 @@ Success and failure feedback is announced through `MatSnackBar`.
 
 ## Theme
 
-The interface starts with the operating system color scheme. The toolbar toggle
-switches between light and dark themes, and the choice is stored in
-`localStorage` under `task-board-theme`. `color-scheme` and
-`meta[name="theme-color"]` stay in sync with the active theme.
+When there is no stored preference, the interface follows the operating
+system color scheme. The toolbar toggle switches between light and dark
+themes, and the choice is stored in `localStorage` under `task-board-theme`.
+`color-scheme` and `meta[name="theme-color"]` stay in sync with the active
+theme.
 
 ## UI
 

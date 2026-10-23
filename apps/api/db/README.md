@@ -43,10 +43,9 @@ service as an extra key in this file.
 
 ## Environment
 
-The canonical configuration is the repository root `.env`. The CLI loads an
-optional `.env` from the selected service root first and the repository root
-`.env` as a fallback; variables already present in the process win. It uses the
-same `@repo/config-env` validation as the API, but validates the database
+The configuration is the repository root `.env`. The CLI loads that file;
+variables already present in the process win. It uses the same
+`@repo/config-env` validation as the API, but validates the database
 variables only when a command needs a connection. `seed --list` works without
 credentials.
 
@@ -67,8 +66,9 @@ Migration filenames must follow `<YYYYMMDDHHmmss>_<name>.sql`, for example
 
 ## Commands
 
-Run from the repository root. Every `db:*` script builds the CLI before running
-and targets `apps/api` with `--dir`.
+Run from the repository root. The migration, seed and reset scripts build the
+CLI before running and target `apps/api` with `--dir`. The `db:up`, `db:down`
+and `db:logs` scripts only forward to Docker Compose.
 
 | Command                            | Description                                                      |
 | ---------------------------------- | ---------------------------------------------------------------- |

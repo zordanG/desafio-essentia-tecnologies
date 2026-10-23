@@ -4,7 +4,6 @@ import path from 'node:path';
 import test from 'node:test';
 import {
   createTestDatabase,
-  databaseEnvKeys,
   makeFixture,
   plain,
   runCli,
@@ -186,22 +185,13 @@ test('Up, down and up restores the schema', async () => {
   }
 });
 
-test('Loads the database env from the selected --dir root', async () => {
+test('Loads the database env from the CLI process env', async () => {
   const ctx = await setup();
 
   try {
-    const envFile = Object.entries(ctx.database.env)
-      .map(([key, value]) => `${key}=${value}`)
-      .join('\n');
-
-    await writeFile(path.join(ctx.fixture.root, '.env'), envFile);
-
     const result = await runCli(
       ['migrate', 'up', '--dir', ctx.fixture.root],
-      {},
-      {
-        omitEnv: databaseEnvKeys,
-      },
+      ctx.env,
     );
 
     assert.equal(result.code, 0, plain(result.stderr));

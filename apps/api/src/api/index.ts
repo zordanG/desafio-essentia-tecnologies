@@ -25,18 +25,9 @@ function buildApp(): FastifyInstance {
   app.register(fastifySwagger, {
     openapi: {
       info: {
-        title: 'Inspector API',
-        description: 'API for capturing and inspecting requests',
+        title: 'TechX Tasks API',
+        description: 'REST API for managing tasks.',
         version: '1.0.0',
-      },
-      components: {
-        securitySchemes: {
-          bearerAuth: {
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'JWT',
-          },
-        },
       },
     },
     transform: jsonSchemaTransform,

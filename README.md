@@ -81,7 +81,9 @@ npm install
 ### 2. Create the environment file
 
 The repository uses one root `.env` for the API, database tooling and Docker
-Compose. Copy the template:
+Compose. The API and the database CLI both load this file; the web app does
+**not** read `.env` and gets its API URL from a public runtime file. Copy the
+template:
 
 ```bash
 cp .env.example .env
@@ -141,9 +143,9 @@ Swagger UI is available only when the API runs with `NODE_ENV` other than
 
 ## Environment variables
 
-The API reads the root `.env` and validates it before starting. The database CLI
-uses the same file. The web app does **not** read `.env`; its API URL comes from
-a public runtime file.
+The API reads the root `.env` and validates it before starting. The database
+CLI uses the same file. The web app does **not** read `.env`; its API URL comes
+from a public runtime file.
 
 | Variable              | Required     | Default      | Purpose                                                           |
 | --------------------- | ------------ | ------------ | ----------------------------------------------------------------- |
@@ -169,8 +171,8 @@ not expose Swagger UI or stack traces. Locally, use `NODE_ENV=development` as
 | --------------------------- | ----------------------------------------------------------- |
 | `npm run dev`               | Starts the API and web app in watch mode.                   |
 | `npm run build`             | Builds every workspace with a build task.                   |
-| `npm run lint`              | Runs ESLint across the monorepo.                            |
-| `npm run check-types`       | Runs TypeScript checks across the monorepo.                 |
+| `npm run lint`              | Runs ESLint in the workspaces that define a lint task. |
+| `npm run check-types`       | Runs TypeScript checks in the workspaces that define a check-types task. |
 | `npm run format`            | Formats source, HTML, CSS, Markdown and YAML with Prettier. |
 | `npm test`                  | Runs the test suite. Requires MySQL and the root `.env`.    |
 | `npm run db:build`          | Compiles the `@repo/db-tools` CLI.                          |
@@ -362,8 +364,10 @@ Recommended release steps:
 
 6. Publish `apps/web/dist/web/browser` and serve `config.json` with
    `Cache-Control: no-cache`.
-7. Verify `GET /health` and the web task board before routing production
-   traffic.
+7. Verify `GET /health` returns `ok` (liveness) and that an endpoint that
+   depends on MySQL (for example `GET /todos`) responds successfully before
+   routing production traffic. The `/health` endpoint only reports process
+   liveness, not database reachability.
 
 A CI pipeline should run:
 
@@ -390,7 +394,9 @@ the root `.env`. The web build artifact is not ready for a remote API until its
 - **Web calls localhost after deployment:** replace `dist/web/browser/config.json`
   and invalidate its cache.
 - **CORS errors in the browser:** add the web origin to `ALLOWED_ORIGINS` and
-  restart the API.
+  restart the API. With credentials enabled, `ALLOWED_ORIGINS` must list the
+  exact web origin; wildcards are not allowed. With credentials enabled, `ALLOWED_ORIGINS` must list the
+  exact web origin; wildcards are not allowed.
 - **`db:reset` refuses to run:** it requires `--yes` for non-interactive use and
   `--force` when `NODE_ENV=production`.
 - **Tests fail before running:** start MySQL and make sure
@@ -408,5 +414,7 @@ the root `.env`. The web build artifact is not ready for a remote API until its
   migrations instead of a separate migration library.
 - Writes are not optimistic. The UI reflects the API response, which keeps the
   board predictable and easier to test.
-- The current scope is a single-user board; authentication and multi-tenancy are
-  not implemented.
+- Authentication will be introduced as a follow-up: the current scope is a
+  single-user board and authentication and multi-tenancy are not implemented.
+  The Swagger definition no longer advertises bearer auth until that work
+  starts.
