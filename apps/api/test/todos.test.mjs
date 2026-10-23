@@ -27,7 +27,7 @@ after(async () => {
   if (database) await database.drop();
 });
 
-test('todo CRUD returns the expected contract', async () => {
+test('Todo CRUD returns the expected contract', async () => {
   let response = await app.inject({
     method: 'POST',
     url: '/todos',

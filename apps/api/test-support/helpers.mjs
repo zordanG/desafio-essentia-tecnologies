@@ -1,13 +1,39 @@
 import { existsSync } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { createEnv } from '@repo/config-env';
 import mysql from 'mysql2/promise';
+import { z } from 'zod';
 
 export const repoRoot = path.resolve(import.meta.dirname, '../../..');
+
+const adminEnvSchema = z.object({
+  MYSQL_ROOT_PASSWORD: z.string().min(1),
+  MYSQL_HOST: z.string().min(1).default('localhost'),
+  MYSQL_PORT: z.coerce.number().int().positive().default(3306),
+});
+
+const apiTestEnvSchema = z.object({
+  NODE_ENV: z.literal('test'),
+  LOG_LEVEL: z.literal('error'),
+  HOST: z.string().min(1),
+  ALLOWED_ORIGINS: z.string().min(1),
+  MYSQL_DATABASE: z.string().min(1),
+  MYSQL_HOST: z.string().min(1),
+  MYSQL_PORT: z.coerce.number().int().positive(),
+  MYSQL_USER: z.string().min(1),
+  MYSQL_PASSWORD: z.string().min(1),
+});
 
 export function loadRootEnv() {
   const file = path.join(repoRoot, '.env');
   if (existsSync(file)) process.loadEnvFile(file);
+}
+
+function getAdminEnv() {
+  loadRootEnv();
+
+  return createEnv(adminEnvSchema);
 }
 
 function quoteIdent(name) {
@@ -15,17 +41,13 @@ function quoteIdent(name) {
 }
 
 function connectionConfig(database) {
-  const password = process.env.MYSQL_ROOT_PASSWORD;
-
-  if (!password) {
-    throw new Error('MYSQL_ROOT_PASSWORD is required to run the API integration tests');
-  }
+  const env = getAdminEnv();
 
   return {
-    host: process.env.MYSQL_HOST ?? 'localhost',
-    port: Number(process.env.MYSQL_PORT ?? 3306),
+    host: env.MYSQL_HOST,
+    port: env.MYSQL_PORT,
     user: 'root',
-    password,
+    password: env.MYSQL_ROOT_PASSWORD,
     ...(database ? { database } : {}),
     multipleStatements: true,
     timezone: 'Z',
@@ -47,8 +69,7 @@ async function applyMigrations(database) {
 }
 
 export async function createApiDatabase() {
-  loadRootEnv();
-
+  const adminEnv = getAdminEnv();
   const suffix = `${process.pid}_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
   const name = `api_test_${suffix}`.slice(0, 60);
   const admin = await mysql.createConnection(connectionConfig());
@@ -67,17 +88,17 @@ export async function createApiDatabase() {
 
   return {
     name,
-    env: {
+    env: createEnv(apiTestEnvSchema, {
       NODE_ENV: 'test',
       LOG_LEVEL: 'error',
       HOST: '127.0.0.1',
       ALLOWED_ORIGINS: 'http://localhost:3000',
       MYSQL_DATABASE: name,
-      MYSQL_HOST: process.env.MYSQL_HOST ?? 'localhost',
-      MYSQL_PORT: process.env.MYSQL_PORT ?? '3306',
+      MYSQL_HOST: adminEnv.MYSQL_HOST,
+      MYSQL_PORT: String(adminEnv.MYSQL_PORT),
       MYSQL_USER: 'root',
-      MYSQL_PASSWORD: process.env.MYSQL_ROOT_PASSWORD,
-    },
+      MYSQL_PASSWORD: adminEnv.MYSQL_ROOT_PASSWORD,
+    }),
     async drop() {
       await admin.query(`DROP DATABASE IF EXISTS ${quoteIdent(name)}`);
       await admin.end();

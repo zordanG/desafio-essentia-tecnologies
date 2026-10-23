@@ -12,14 +12,14 @@ const validDatabaseEnv = {
   MYSQL_DATABASE: 'desafio',
 };
 
-test('getDbEnv validates the database variables and defaults the port', () => {
+test('Validates database variables and defaults the port', () => {
   assert.deepEqual(getDbEnv(validDatabaseEnv), {
     ...validDatabaseEnv,
     MYSQL_PORT: 3306,
   });
 });
 
-test('getDbEnv reports every missing database variable', () => {
+test('Reports every missing database variable', () => {
   assert.throws(
     () => getDbEnv({}),
     (error) => {
@@ -32,7 +32,7 @@ test('getDbEnv reports every missing database variable', () => {
   );
 });
 
-test('getDbEnv reports empty and invalid values', () => {
+test('Reports empty and invalid values', () => {
   assert.throws(
     () => getDbEnv({ ...validDatabaseEnv, MYSQL_PASSWORD: '' }),
     /MYSQL_PASSWORD: defined but empty/,
@@ -40,13 +40,13 @@ test('getDbEnv reports empty and invalid values', () => {
   assert.throws(() => getDbEnv({ ...validDatabaseEnv, MYSQL_PORT: 'not-a-port' }), /MYSQL_PORT/);
 });
 
-test('getCliEnv defaults NODE_ENV to production', () => {
+test('Defaults NODE_ENV to production', () => {
   assert.equal(getCliEnv({}).NODE_ENV, 'production');
   assert.equal(getCliEnv({ NODE_ENV: 'test' }).NODE_ENV, 'test');
   assert.throws(() => getCliEnv({ NODE_ENV: 'staging' }), /NODE_ENV/);
 });
 
-test('loadServiceEnv loads the selected root .env without overriding real variables', async () => {
+test('Loads the selected root .env without overriding real variables', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'db-tools-env-'));
   const previous = process.env.MYSQL_HOST;
 
@@ -68,7 +68,7 @@ test('loadServiceEnv loads the selected root .env without overriding real variab
   }
 });
 
-test('loadServiceEnv ignores a missing .env file', async () => {
+test('Ignores a missing .env file', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'db-tools-env-'));
 
   try {
@@ -78,7 +78,7 @@ test('loadServiceEnv ignores a missing .env file', async () => {
   }
 });
 
-test('loadServiceEnv falls back to the repository root .env', async () => {
+test('Falls back to the repository root .env', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'db-tools-env-'));
   const previous = process.env.MYSQL_USER;
 

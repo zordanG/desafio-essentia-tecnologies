@@ -52,7 +52,7 @@ async function tableExists(database, table) {
   }
 }
 
-test('migrate status/up block an interrupted migration', async () => {
+test('Migration status and up block an interrupted migration', async () => {
   const ctx = await setup();
 
   try {
@@ -92,7 +92,7 @@ test('migrate status/up block an interrupted migration', async () => {
   }
 });
 
-test('migrate refuses an edited up file', async () => {
+test('Refuses an edited up file', async () => {
   const ctx = await setup();
 
   try {
@@ -119,7 +119,7 @@ test('migrate refuses an edited up file', async () => {
   }
 });
 
-test('migrate down fails while another process holds the lock', async () => {
+test('Migration down fails while another process holds the lock', async () => {
   const ctx = await setup();
 
   try {
@@ -147,7 +147,7 @@ test('migrate down fails while another process holds the lock', async () => {
   }
 });
 
-test('migrate rejects duplicate versions before applying', async () => {
+test('Rejects duplicate versions before applying', async () => {
   const ctx = await setup({
     up: {
       '20260101000000_tasks.sql': 'CREATE TABLE tasks (id INT PRIMARY KEY);',
@@ -166,7 +166,7 @@ test('migrate rejects duplicate versions before applying', async () => {
   }
 });
 
-test('migrate up, down and up restores the schema', async () => {
+test('Up, down and up restores the schema', async () => {
   const ctx = await setup();
 
   try {
@@ -186,7 +186,7 @@ test('migrate up, down and up restores the schema', async () => {
   }
 });
 
-test('migrate loads the database env from the selected --dir root', async () => {
+test('Loads the database env from the selected --dir root', async () => {
   const ctx = await setup();
 
   try {

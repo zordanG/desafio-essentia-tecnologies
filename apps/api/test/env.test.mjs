@@ -14,7 +14,7 @@ const keys = [
   'MYSQL_DATABASE',
 ];
 
-test('the API env module loads the repository root .env', async () => {
+test('The API env module loads the repository root .env', async () => {
   const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
 
   try {

@@ -45,7 +45,7 @@ async function countTasks(database) {
   }
 }
 
-test('seed applies files in order and supports --list', async () => {
+test('Applies files in order and supports --list', async () => {
   const ctx = await setup({
     '001_one.sql': "INSERT INTO tasks (title) VALUES ('one');",
     '002_two.sql': "INSERT INTO tasks (title) VALUES ('two');",
@@ -69,7 +69,7 @@ test('seed applies files in order and supports --list', async () => {
   }
 });
 
-test('seed rolls back a file that fails halfway', async () => {
+test('Rolls back a file that fails halfway', async () => {
   const ctx = await setup({
     '001_ok.sql': "INSERT INTO tasks (title) VALUES ('kept');",
     '002_broken.sql': [

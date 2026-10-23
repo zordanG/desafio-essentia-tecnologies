@@ -7,7 +7,7 @@ import { loadConfig } from '../dist/db/config.js';
 import { loadMigrations } from '../dist/db/migrate.js';
 import { makeFixture } from '../test-support/helpers.mjs';
 
-test('loadConfig reads ownedTables', async () => {
+test('Loads ownedTables from the config', async () => {
   const fixture = await makeFixture({ service: 'api', ownedTables: ['tasks'] });
 
   try {
@@ -20,7 +20,7 @@ test('loadConfig reads ownedTables', async () => {
   }
 });
 
-test('loadConfig defaults ownedTables to an empty list', async () => {
+test('Defaults ownedTables to an empty list', async () => {
   const fixture = await makeFixture({});
 
   try {
@@ -30,7 +30,7 @@ test('loadConfig defaults ownedTables to an empty list', async () => {
   }
 });
 
-test('loadConfig rejects invalid ownedTables entries', async () => {
+test('Rejects invalid ownedTables entries', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'db-tools-config-'));
 
   try {
@@ -49,7 +49,7 @@ test('loadConfig rejects invalid ownedTables entries', async () => {
   }
 });
 
-test('loadMigrations rejects invalid filenames', async () => {
+test('Rejects invalid migration filenames', async () => {
   const fixture = await makeFixture({ up: { 'bad.sql': 'SELECT 1;' } });
 
   try {
@@ -62,7 +62,7 @@ test('loadMigrations rejects invalid filenames', async () => {
   }
 });
 
-test('loadMigrations rejects duplicate versions', async () => {
+test('Rejects duplicate migration versions', async () => {
   const fixture = await makeFixture({
     up: {
       '20260101000000_first.sql': 'SELECT 1;',
@@ -80,7 +80,7 @@ test('loadMigrations rejects duplicate versions', async () => {
   }
 });
 
-test('loadMigrations sorts by version', async () => {
+test('Sorts migrations by version', async () => {
   const fixture = await makeFixture({
     up: {
       '20260102000000_second.sql': 'SELECT 2;',

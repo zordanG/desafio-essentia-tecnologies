@@ -3,7 +3,9 @@ import { existsSync } from 'node:fs';
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { createEnv } from '@repo/config-env';
 import mysql from 'mysql2/promise';
+import { z } from 'zod';
 
 export const repoRoot = path.resolve(import.meta.dirname, '../../..');
 export const cliPath = path.join(repoRoot, 'packages/db-tools/dist/cli.js');
@@ -15,9 +17,21 @@ export const databaseEnvKeys = [
   'MYSQL_DATABASE',
 ];
 
+const adminEnvSchema = z.object({
+  MYSQL_ROOT_PASSWORD: z.string().min(1),
+  MYSQL_HOST: z.string().min(1).default('localhost'),
+  MYSQL_PORT: z.coerce.number().int().positive().default(3306),
+});
+
 export function loadRootEnv() {
   const file = path.join(repoRoot, '.env');
   if (existsSync(file)) process.loadEnvFile(file);
+}
+
+function getAdminEnv() {
+  loadRootEnv();
+
+  return createEnv(adminEnvSchema);
 }
 
 function quoteIdent(name) {
@@ -25,17 +39,13 @@ function quoteIdent(name) {
 }
 
 export function connectionConfig(database) {
-  const password = process.env.MYSQL_ROOT_PASSWORD;
-
-  if (!password) {
-    throw new Error('MYSQL_ROOT_PASSWORD is required to run the database integration tests');
-  }
+  const env = getAdminEnv();
 
   return {
-    host: process.env.MYSQL_HOST ?? 'localhost',
-    port: Number(process.env.MYSQL_PORT ?? 3306),
+    host: env.MYSQL_HOST,
+    port: env.MYSQL_PORT,
     user: 'root',
-    password,
+    password: env.MYSQL_ROOT_PASSWORD,
     ...(database ? { database } : {}),
     multipleStatements: true,
     timezone: 'Z',
@@ -43,8 +53,7 @@ export function connectionConfig(database) {
 }
 
 export async function createTestDatabase(prefix) {
-  loadRootEnv();
-
+  const adminEnv = getAdminEnv();
   const suffix = `${process.pid}_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
   const name = `${prefix}_${suffix}`.slice(0, 60);
   const admin = await mysql.createConnection(connectionConfig());
@@ -57,10 +66,10 @@ export async function createTestDatabase(prefix) {
     name,
     env: {
       MYSQL_DATABASE: name,
-      MYSQL_HOST: process.env.MYSQL_HOST ?? 'localhost',
-      MYSQL_PORT: process.env.MYSQL_PORT ?? '3306',
+      MYSQL_HOST: adminEnv.MYSQL_HOST,
+      MYSQL_PORT: String(adminEnv.MYSQL_PORT),
       MYSQL_USER: 'root',
-      MYSQL_PASSWORD: process.env.MYSQL_ROOT_PASSWORD,
+      MYSQL_PASSWORD: adminEnv.MYSQL_ROOT_PASSWORD,
     },
     async connect() {
       return mysql.createConnection(connectionConfig(name));

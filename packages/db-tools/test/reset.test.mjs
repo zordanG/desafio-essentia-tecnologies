@@ -47,7 +47,7 @@ async function setup({ ownedTables = ['tasks'], includeOwnedTables = true } = {}
   };
 }
 
-test('reset drops only the owned tables by default', async () => {
+test('Drops only the owned tables by default', async () => {
   const ctx = await setup();
 
   try {
@@ -73,7 +73,7 @@ test('reset drops only the owned tables by default', async () => {
   }
 });
 
-test('reset --all-tables drops every base table', async () => {
+test('Drops every base table with --all-tables', async () => {
   const ctx = await setup();
 
   try {
@@ -96,7 +96,7 @@ test('reset --all-tables drops every base table', async () => {
   }
 });
 
-test('reset refuses to run without ownedTables', async () => {
+test('Refuses to run without ownedTables', async () => {
   const ctx = await setup({ includeOwnedTables: false });
 
   try {
@@ -114,7 +114,7 @@ test('reset refuses to run without ownedTables', async () => {
   }
 });
 
-test('reset allows --all-tables without ownedTables', async () => {
+test('Allows --all-tables without ownedTables', async () => {
   const ctx = await setup({ includeOwnedTables: false });
 
   try {
@@ -131,7 +131,7 @@ test('reset allows --all-tables without ownedTables', async () => {
   }
 });
 
-test('reset requires --yes when stdin is not interactive', async () => {
+test('Requires --yes when stdin is not interactive', async () => {
   const ctx = await setup();
 
   try {

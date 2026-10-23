@@ -9,14 +9,14 @@ describe('ThemeService', () => {
     document.documentElement.style.removeProperty('color-scheme');
   });
 
-  it('starts with the light theme when there is no stored or system preference', () => {
+  it('Starts with the light theme when there is no stored or system preference', () => {
     const service = TestBed.inject(ThemeService);
 
     expect(service.theme()).toBe('light');
     expect(document.documentElement.dataset['theme']).toBe('light');
   });
 
-  it('uses the stored theme', () => {
+  it('Uses the stored theme', () => {
     localStorage.setItem('task-board-theme', 'dark');
 
     const service = TestBed.inject(ThemeService);
@@ -25,7 +25,7 @@ describe('ThemeService', () => {
     expect(document.documentElement.dataset['theme']).toBe('dark');
   });
 
-  it('toggles and persists the selected theme', () => {
+  it('Toggles and persists the selected theme', () => {
     const service = TestBed.inject(ThemeService);
 
     service.toggle();
