@@ -11,6 +11,7 @@ import {
 import fastifyHelmet from '@fastify/helmet';
 import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
+import errorHandlerPlugin from './plugins/error.plugin.js';
 
 function buildApp(): FastifyInstance {
   const app = fastify().withTypeProvider<ZodTypeProvider>();
@@ -55,6 +56,9 @@ function buildApp(): FastifyInstance {
     allowedHeaders: ['Content-Type', 'Authorization'],
     exposedHeaders: ['X-Total-Count'],
   });
+
+  // Custom Plugins
+  app.register(errorHandlerPlugin);
 
   // Access log, in the same format as the rest of the application
   app.addHook('onResponse', (request, reply) => {

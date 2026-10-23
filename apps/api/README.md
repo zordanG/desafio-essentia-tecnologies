@@ -45,3 +45,34 @@ Run them from this directory, or from the repository root through Turborepo.
 | `GET`  | `/docs`   | Swagger UI (not in production). |
 
 Logs are written as one JSON line per event on stdout.
+
+## Errors
+
+Error responses always use the same shape:
+
+| Field     | Description                                       |
+| --------- | ------------------------------------------------- |
+| `code`    | Machine-readable code, e.g. `RESOURCE_NOT_FOUND`. |
+| `message` | Human-readable message.                           |
+| `status`  | HTTP status, repeated in the body.                |
+
+| Situation                      | Response                                 |
+| ------------------------------ | ---------------------------------------- |
+| `AppError` thrown by a handler | Its own `status`, `code` and `message`.  |
+| Invalid request data (Zod)     | `400` `VALIDATION_ERROR`.                |
+| Unknown route                  | `404` `RESOURCE_NOT_FOUND`.              |
+| Invalid JSON                   | `400` `BAD_REQUEST`.                     |
+| Payload too large              | `413` `PAYLOAD_TOO_LARGE`.               |
+| Unsupported content type       | `415` `UNSUPPORTED_MEDIA_TYPE`.          |
+| Other client errors            | Their 4xx status, code mapped from it.   |
+| Anything unexpected            | `500` `INTERNAL_ERROR`, generic message. |
+
+Client errors keep their status and use the code that matches it (`400`
+`BAD_REQUEST`, `401` `UNAUTHORIZED`, `403` `FORBIDDEN`, `404`
+`RESOURCE_NOT_FOUND`, `409` `CONFLICT`, `413` `PAYLOAD_TOO_LARGE`, `415`
+`UNSUPPORTED_MEDIA_TYPE`, `429` `TOO_MANY_REQUESTS`); any other 4xx falls back
+to `BAD_REQUEST`.
+
+Unexpected errors are logged as `Unhandled request error` with the `requestId`,
+which also appears in the `Request completed` access log. The response never
+includes the stack or the original error message.
