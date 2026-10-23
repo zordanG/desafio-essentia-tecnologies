@@ -1,0 +1,135 @@
+<section class="board" aria-labelledby="board-title">
+  <header class="board-header">
+    <div class="board-heading">
+      <p class="eyebrow">TechX workspace</p>
+      <h1 id="board-title">Keep your work in focus.</h1>
+      <p class="lede">Plan, track and finish the tasks that matter to your team.</p>
+    </div>
+
+    <div class="board-actions" aria-label="Task actions">
+      <button
+        mat-stroked-button
+        type="button"
+        class="action-button"
+        [disabled]="loading() || creating()"
+        (click)="loadTasks()"
+      >
+        <mat-icon aria-hidden="true">refresh</mat-icon>
+        <span>Refresh</span>
+      </button>
+
+      <button
+        mat-flat-button
+        type="button"
+        class="action-button"
+        [disabled]="creating()"
+        (click)="openCreateDialog()"
+      >
+        <mat-icon aria-hidden="true">add</mat-icon>
+        <span>New task</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="board-summary" aria-live="polite">
+    @if (!loading() && !error()) {
+      <span>{{ tasks().length }} {{ tasks().length === 1 ? 'task' : 'tasks' }}</span>
+      @if (openCount() > 0) {
+        <span class="summary-dot" aria-hidden="true">•</span>
+        <span>{{ openCount() }} open</span>
+      }
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="board-state" role="status">
+      <mat-progress-spinner mode="indeterminate" diameter="40" aria-hidden="true" />
+      <p>Loading tasks…</p>
+    </div>
+  } @else if (error()) {
+    <div class="board-state board-state--error" role="alert">
+      <mat-icon aria-hidden="true">cloud_off</mat-icon>
+      <div>
+        <h2>We could not load your tasks.</h2>
+        <p>{{ error() }}</p>
+      </div>
+      <button mat-stroked-button type="button" (click)="loadTasks()">Try again</button>
+    </div>
+  } @else if (tasks().length === 0) {
+    <div class="board-state board-state--empty">
+      <span class="empty-icon" aria-hidden="true">
+        <mat-icon>checklist</mat-icon>
+      </span>
+      <div>
+        <h2>No tasks yet.</h2>
+        <p>Create your first task to start planning the day.</p>
+      </div>
+      <button mat-flat-button type="button" (click)="openCreateDialog()">Create a task</button>
+    </div>
+  } @else {
+    <ul class="task-list" aria-label="Task list">
+      @for (task of tasks(); track task.id) {
+        <li>
+          <article
+            class="task-card"
+            [class.task-card--completed]="task.completed"
+            [attr.aria-busy]="isPending(task.id)"
+          >
+            <mat-checkbox
+              class="task-checkbox"
+              [checked]="task.completed"
+              [disabled]="isPending(task.id)"
+              [aria-label]="
+                task.completed
+                  ? 'Mark ' + task.title + ' as open'
+                  : 'Mark ' + task.title + ' as complete'
+              "
+              (change)="toggleTask(task, $event)"
+            />
+
+            <div class="task-content">
+              <div class="task-title-row">
+                <h2 class="task-title">{{ task.title }}</h2>
+                <span class="task-status" [class.task-status--done]="task.completed">
+                  <mat-icon aria-hidden="true">
+                    {{ task.completed ? 'check_circle' : 'radio_button_unchecked' }}
+                  </mat-icon>
+                  {{ task.completed ? 'Done' : 'Open' }}
+                </span>
+              </div>
+
+              @if (task.description) {
+                <p class="task-description">{{ task.description }}</p>
+              }
+
+              <p class="task-date">Created {{ task.created_at | date: 'mediumDate' }}</p>
+            </div>
+
+            <div class="task-actions">
+              <button
+                mat-icon-button
+                type="button"
+                [attr.aria-label]="'Edit ' + task.title"
+                [disabled]="isPending(task.id)"
+                (click)="openEditDialog(task)"
+              >
+                <mat-icon aria-hidden="true">edit</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                type="button"
+                class="delete-button"
+                [attr.aria-label]="'Delete ' + task.title"
+                [disabled]="isPending(task.id)"
+                (click)="confirmDelete(task)"
+              >
+                <mat-icon aria-hidden="true">delete</mat-icon>
+              </button>
+            </div>
+          </article>
+        </li>
+      }
+    </ul>
+  }
+</section>

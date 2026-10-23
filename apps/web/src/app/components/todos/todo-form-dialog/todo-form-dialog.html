@@ -1,0 +1,32 @@
+<h2 mat-dialog-title id="todo-form-title">
+  {{ isEdit ? 'Edit task' : 'New task' }}
+</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="dialog-content">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" maxlength="255" autocomplete="off" />
+      <mat-hint align="end">{{ title.value.length }}/255</mat-hint>
+      @if (title.touched && title.hasError('required')) {
+        <mat-error>Enter a task title.</mat-error>
+      } @else if (title.touched && title.hasError('maxlength')) {
+        <mat-error>Use 255 characters or fewer.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description (optional)</mat-label>
+      <textarea matInput formControlName="description" rows="4" maxlength="2000"></textarea>
+      <mat-hint align="end">{{ description.value.length }}/2000</mat-hint>
+      @if (description.touched && description.hasError('maxlength')) {
+        <mat-error>Use 2000 characters or fewer.</mat-error>
+      }
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancel()">Cancel</button>
+    <button mat-flat-button type="submit">{{ isEdit ? 'Save changes' : 'Create task' }}</button>
+  </mat-dialog-actions>
+</form>

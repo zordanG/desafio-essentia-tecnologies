@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { TodoService } from './shared/services/todo.service';
 import { App } from './app';
 
 describe('App', () => {
@@ -10,16 +12,17 @@ describe('App', () => {
 
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [{ provide: TodoService, useValue: { list: () => of([]) } }],
     }).compileComponents();
   });
 
-  it('creates the application shell', () => {
+  it('Creates the application shell', () => {
     const fixture = TestBed.createComponent(App);
 
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('renders the app heading', () => {
+  it('Renders the app heading', () => {
     const fixture = TestBed.createComponent(App);
 
     fixture.detectChanges();
@@ -29,7 +32,7 @@ describe('App', () => {
     );
   });
 
-  it('renders the Material toolbar and theme toggle', () => {
+  it('Renders the Material toolbar and theme toggle', () => {
     const fixture = TestBed.createComponent(App);
 
     fixture.detectChanges();
@@ -41,7 +44,20 @@ describe('App', () => {
     expect(element.querySelector('button[aria-label="Switch to dark theme"]')).toBeTruthy();
   });
 
-  it('toggles between light and dark themes', () => {
+  it('Renders the todo board inside the app shell', () => {
+    const fixture = TestBed.createComponent(App);
+
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('app-todo-board')).toBeTruthy();
+    expect(element.querySelector('app-todo-board h1')?.textContent).toContain(
+      'Keep your work in focus.',
+    );
+  });
+
+  it('Toggles between light and dark themes', () => {
     const fixture = TestBed.createComponent(App);
 
     fixture.detectChanges();

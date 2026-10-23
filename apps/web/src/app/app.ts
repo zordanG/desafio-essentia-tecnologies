@@ -1,13 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { TodoBoard } from './components/todos/todo-board/todo-board';
 import { ThemeService } from './theme.service';
 
 @Component({
   selector: 'app-root',
-  imports: [MatButtonModule, MatCardModule, MatIconModule, MatToolbarModule],
+  imports: [MatButtonModule, MatIconModule, MatToolbarModule, TodoBoard],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
