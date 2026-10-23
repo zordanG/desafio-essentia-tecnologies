@@ -1,20 +1,25 @@
 import dotenv from 'dotenv';
 import type { z } from 'zod';
 
-/** Loads the root `.env` (task cwd and repo root); real variables win. */
-dotenv.config({
-  path: ['../../.env', '.env'],
-  quiet: true,
-});
+export type EnvSource = Record<string, string | undefined>;
+
+/** Loads `.env` files (task cwd and repo root by default); real variables win. */
+export function loadEnv(paths: string | string[] = ['../../.env', '.env']): void {
+  dotenv.config({
+    path: paths,
+    quiet: true,
+    override: false,
+  });
+}
 
 /**
- * Reads `process.env` once, dropping missing and empty variables so both behave
+ * Reads the source once, dropping missing and empty variables so both behave
  * the same: the default applies or the field is required. Otherwise
  * `z.coerce.number()` turns an empty string into `0`.
  *
  * The empty names are kept so the error says "empty" instead of "missing".
  */
-function sanitize(source: Record<string, string | undefined>) {
+function sanitize(source: EnvSource) {
   const values: Record<string, string> = {};
   const empty = new Set<string>();
 
@@ -34,9 +39,12 @@ function sanitize(source: Record<string, string | undefined>) {
   return { values, empty };
 }
 
-/** Validates `process.env`, reporting every problem at once so boot fails with all of them. */
-export function createEnv<T extends z.ZodType>(schema: T): z.infer<T> {
-  const { values, empty } = sanitize(process.env);
+/** Validates the source, reporting every problem at once so boot fails with all of them. */
+export function createEnv<T extends z.ZodType>(
+  schema: T,
+  source: EnvSource = process.env,
+): z.infer<T> {
+  const { values, empty } = sanitize(source);
   const result = schema.safeParse(values);
 
   if (!result.success) {
