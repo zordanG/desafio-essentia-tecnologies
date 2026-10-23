@@ -50,8 +50,8 @@ Run them from this directory, or from the repository root through Turborepo.
 
 ## Runtime configuration
 
-The app loads `config.json` from its public root before Angular bootstraps.
-That file sets the API base URL:
+The app loads `config.json` from its public root during startup, before the
+board renders. That file sets the API base URL:
 
 ```json
 {
