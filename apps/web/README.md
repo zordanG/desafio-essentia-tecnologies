@@ -1,6 +1,6 @@
 # `web`
 
-Angular task board for the Essentia Technologies challenge.
+Angular task management app for TechX.
 
 ## Requirements
 
@@ -32,6 +32,14 @@ The development server runs at `http://localhost:3000`.
 | `npm test`            | Runs the unit tests.                   |
 
 Run them from this directory, or from the repository root through Turborepo.
+
+## UI
+
+- [Angular Material](https://material.angular.io/) components and CDK utilities.
+- Roboto and Material Symbols Rounded are self-hosted through Fontsource.
+- The interface starts with the operating system color scheme. The toolbar toggle
+  switches between light and dark themes, and the choice is stored in
+  `localStorage` under `task-board-theme`.
 
 ## API
 

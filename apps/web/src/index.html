@@ -2,14 +2,37 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Task board | Essentia</title>
+    <title>TechX Tasks</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Task board built with Angular for the Essentia Technologies challenge."
-    />
-    <meta name="theme-color" content="#17231e" />
+    <meta name="description" content="Simple task management for the TechX team." />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f2f0e9" />
+    <script>
+      (() => {
+        let storedTheme = null;
+
+        try {
+          storedTheme = localStorage.getItem('task-board-theme');
+        } catch {
+          // Storage can be unavailable in private browsing contexts.
+        }
+
+        const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+        const theme =
+          storedTheme === 'light' || storedTheme === 'dark'
+            ? storedTheme
+            : prefersDark
+              ? 'dark'
+              : 'light';
+
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document
+          .querySelector('meta[name="theme-color"]')
+          ?.setAttribute('content', theme === 'dark' ? '#0c1210' : '#f2f0e9');
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   </head>
   <body>

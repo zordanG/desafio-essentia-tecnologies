@@ -1,5 +1,43 @@
+<mat-toolbar class="app-toolbar">
+  <div class="toolbar-inner">
+    <a class="brand" href="/" aria-label="TechX Tasks home">
+      <span class="brand-icon" aria-hidden="true">
+        <mat-icon>task_alt</mat-icon>
+      </span>
+      <span class="brand-name">TechX Tasks</span>
+    </a>
+
+    <button
+      mat-icon-button
+      type="button"
+      class="theme-toggle"
+      [attr.aria-label]="themeService.isDark() ? 'Switch to light theme' : 'Switch to dark theme'"
+      [attr.aria-pressed]="themeService.isDark()"
+      (click)="themeService.toggle()"
+    >
+      <mat-icon aria-hidden="true">{{
+        themeService.isDark() ? 'light_mode' : 'dark_mode'
+      }}</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>
+
 <main class="shell">
-  <p class="eyebrow">Essentia Technologies challenge</p>
-  <h1>Task board</h1>
-  <p class="lede">The task board interface will be added in the next step.</p>
+  <section class="hero" aria-labelledby="page-title">
+    <p class="eyebrow">TechX workspace</p>
+    <h1 id="page-title">Keep your work in focus.</h1>
+    <p class="lede">A simple way for the TechX team to plan and track daily tasks.</p>
+  </section>
+
+  <mat-card appearance="outlined" class="placeholder-card">
+    <mat-card-content>
+      <span class="placeholder-icon" aria-hidden="true">
+        <mat-icon>checklist</mat-icon>
+      </span>
+      <div>
+        <h2>Your task list is next</h2>
+        <p>The API connection and task actions are the next stage.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </main>

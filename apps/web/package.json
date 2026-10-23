@@ -2,7 +2,7 @@
   "name": "web",
   "version": "0.0.0",
   "private": true,
-  "description": "Angular task board for the Essentia Technologies challenge",
+  "description": "Angular task management app for TechX",
   "scripts": {
     "ng": "ng",
     "dev": "ng serve",
@@ -14,11 +14,15 @@
     "test": "ng test --watch=false"
   },
   "dependencies": {
+    "@angular/cdk": "^22.2.4",
     "@angular/common": "^22.2.0",
     "@angular/compiler": "^22.2.0",
     "@angular/core": "^22.2.0",
     "@angular/forms": "^22.2.0",
+    "@angular/material": "^22.2.4",
     "@angular/platform-browser": "^22.2.0",
+    "@fontsource/material-symbols-rounded": "^5.3.9",
+    "@fontsource/roboto": "^5.3.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

@@ -1,6 +1,6 @@
 # `api`
 
-Fastify HTTP API for the Essentia Technologies challenge.
+Fastify HTTP API for the TechX task management app.
 
 ## Requirements
 
