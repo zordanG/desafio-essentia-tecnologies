@@ -2,13 +2,14 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { environment } from '../../../environments/environment';
 import { ApiHttpError } from '../../core/api/api-error';
 import { apiErrorInterceptor } from '../../core/api/api-error.interceptor';
+import { AppConfigService } from '../../core/config/app-config.service';
 import { TodoService } from './todo.service';
 import type { Task } from '../models/task.model';
 
-const API_URL = `${environment.apiBaseUrl}/todos`;
+const API_BASE_URL = 'http://localhost:3001';
+const API_URL = `${API_BASE_URL}/todos`;
 
 const TASK: Task = {
   id: '9b2f4c1e-6f38-4f6e-9f8a-3a7c1d2e4b5a',
@@ -28,6 +29,7 @@ describe('TodoService', () => {
       providers: [
         provideHttpClient(withInterceptors([apiErrorInterceptor])),
         provideHttpClientTesting(),
+        { provide: AppConfigService, useValue: { apiBaseUrl: API_BASE_URL } },
       ],
     });
 

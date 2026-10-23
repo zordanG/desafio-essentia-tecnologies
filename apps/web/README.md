@@ -48,10 +48,34 @@ The development server runs at `http://localhost:3000`.
 
 Run them from this directory, or from the repository root through Turborepo.
 
+## Runtime configuration
+
+The app loads `config.json` from its public root before Angular bootstraps.
+That file sets the API base URL:
+
+```json
+{
+  "apiBaseUrl": "http://localhost:3001"
+}
+```
+
+`src/app/core/config/app-config.service.ts` resolves the file relative to the
+application base path, validates `apiBaseUrl`, and removes a trailing slash.
+
+`public/config.json` is copied to the build output. For a deployment, replace the
+`config.json` published next to `index.html` with the API URL of that environment.
+The same build can be promoted without rebuilding. Serve `config.json` with
+`Cache-Control: no-cache` so a new deployment is not hidden by a stale cache.
+
+When the web app and the API run on different origins, add the web origin to the
+API `ALLOWED_ORIGINS` list.
+
+`config.json` is public. It must never contain secrets.
+
 ## API
 
-The web app reads the API base URL from `src/environments/environment.ts`.
-For local development it points to `http://localhost:3001`.
+The web app reads the API base URL from the runtime configuration. For local
+development it points to `http://localhost:3001`.
 
 | Method   | Path         | Result                        |
 | -------- | ------------ | ----------------------------- |

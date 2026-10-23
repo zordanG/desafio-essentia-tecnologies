@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { AppConfigService } from '../../core/config/app-config.service';
 import { CreateTaskDto, Task, UpdateTaskDto } from '../models/task.model';
 
 @Injectable({
@@ -9,7 +9,8 @@ import { CreateTaskDto, Task, UpdateTaskDto } from '../models/task.model';
 })
 export class TodoService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/todos`;
+  private readonly config = inject(AppConfigService);
+  private readonly baseUrl = `${this.config.apiBaseUrl}/todos`;
 
   list(): Observable<Task[]> {
     return this.http.get<Task[]>(this.baseUrl);
