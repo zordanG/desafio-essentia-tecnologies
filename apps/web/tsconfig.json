@@ -1,0 +1,16 @@
+{
+  "extends": "@repo/typescript-config/angular.json",
+  "compileOnSave": false,
+  "compilerOptions": {
+    "types": []
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
+}
