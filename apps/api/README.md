@@ -23,7 +23,12 @@ variables abort startup with an error listing every problem at once.
 | `MYSQL_PORT`      | No       | `3306`       | MySQL port.                                                                              |
 | `MYSQL_USER`      | Yes      | -            | MySQL user.                                                                              |
 | `MYSQL_PASSWORD`  | Yes      | -            | MySQL password.                                                                          |
-| `MYSQL_DATABASE`  | Yes      | -            | MySQL database name.                                                                     |
+| `JWT_SECRET`      | Yes      | -            | JWT Secret.                                                                              |
+| `COOKIE_SECRET`   | No       | `JWT_SECRET` | Cookie Secret.                                                                           |
+| `REDIS_HOST`      | Yes      | -            | Redis host.                                                                              |
+| `REDIS_PORT`      | No       | `6379`       | Redis Port.                                                                              |
+| `REDIS_PASSWORD`  | Yes      | -            | Redis Password.                                                                          |
+| `MONGODB_URI`     | Yes      | -            | MongoDB URI the api connects to.                                                         |
 
 > `NODE_ENV` defaults to `production` so a deployment that forgets to set it does
 > not expose the Swagger UI at `/docs` or stack traces in the logs. Locally, keep
@@ -43,19 +48,23 @@ Run them from this directory, or from the repository root through Turborepo.
 
 ## Endpoints
 
-| Method   | Path             | Response                                     |
-| -------- | ---------------- | -------------------------------------------- |
-| `GET`    | `/health`        | `{ "status": "ok" }`                         |
-| `GET`    | `/docs`          | Swagger UI (not in production).              |
-| `GET`    | `/api/todos`     | List tasks, newest first.                    |
-| `POST`   | `/api/todos`     | Creates a task.                              |
-| `GET`    | `/api/todos/:id` | Returns one task.                            |
-| `PATCH`  | `/api/todos/:id` | Updates a task.                              |
-| `DELETE` | `/api/todos/:id` | Deletes a task                               |
-| `POST`   | `/auth/register` | Creates an account and starts a session.     |
-| `POST`   | `/auth/login`    | Authenticates the user and starts a session. |
-| `POST`   | `/auth/refresh`  | Refreshes the authentication session.        |
-| `POST`   | `/auth/logout`   | Ends the current session.                    |
+| Method   | Path                      | Response                                     |
+| -------- | ------------------------- | -------------------------------------------- |
+| `GET`    | `/health`                 | `{ "status": "ok" }`                         |
+| `GET`    | `/docs`                   | Swagger UI (not in production).              |
+| `GET`    | `/api/todos`              | List tasks, newest first.                    |
+| `POST`   | `/api/todos`              | Creates a task.                              |
+| `GET`    | `/api/todos/:id`          | Returns one task.                            |
+| `PATCH`  | `/api/todos/:id`          | Updates a task.                              |
+| `DELETE` | `/api/todos/:id`          | Deletes a task                               |
+| `POST`   | `/auth/register`          | Creates an account and starts a session.     |
+| `POST`   | `/auth/login`             | Authenticates the user and starts a session. |
+| `POST`   | `/auth/refresh`           | Refreshes the authentication session.        |
+| `POST`   | `/auth/logout`            | Ends the current session.                    |
+| `GET`    | `/api/todos/:id/metadata` | Consulta metadados.                          |
+| `PUT`    | `/api/todos/:id/metadata` | Cria ou substitui.                           |
+| `PATCH`  | `/api/todos/:id/metadata` | Atualiza somente campos enviados.            |
+| `DELETE` | `/api/todos/:id/metadata` | Remove apenas os metadados.                  |
 
 Logs are written as one JSON line per event on stdout.
 

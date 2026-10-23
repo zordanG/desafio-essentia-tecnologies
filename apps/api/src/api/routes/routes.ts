@@ -1,6 +1,7 @@
 import type { FastifyTypedInstance } from '../types.js';
 import authRoutes from '../controllers/auth.controller.js';
 import todoRoutes from '../controllers/todo.controller.js';
+import todoMetadataRoutes from '../controllers/todo-metadata.controller.js';
 
 export async function routes(app: FastifyTypedInstance) {
   app.get(
@@ -24,5 +25,6 @@ export async function routes(app: FastifyTypedInstance) {
     protectedApp.addHook('preHandler', app.rateLimiterPerId);
 
     await protectedApp.register(todoRoutes, { prefix: '/api' });
+    await protectedApp.register(todoMetadataRoutes, { prefix: '/api' });
   });
 }

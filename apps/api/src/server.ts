@@ -3,6 +3,7 @@ import { logger } from './config/logger.js';
 import { buildApp } from './api/index.js';
 import { PoolController } from './config/db.js';
 import { RedisInstance } from './config/redis.js';
+import { MongoInstance } from './config/mongo.js';
 
 const app = buildApp();
 
@@ -21,6 +22,7 @@ async function shutdownEverything(signal: string): Promise<void> {
     await app.close();
 
     RedisInstance.closeInstance();
+    MongoInstance.closeInstance();
     await PoolController.shutdown();
   } catch (error) {
     logger.error('Failed to close server', { err: error });

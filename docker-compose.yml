@@ -46,6 +46,36 @@ services:
       retries: 10
       start_period: 10s
 
+  mongodb:
+    image: mongo:8
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    ports:
+      - '127.0.0.1:27017:27017'
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'mongosh',
+          '--username',
+          '${MONGO_ROOT_USERNAME}',
+          '--password',
+          '${MONGO_ROOT_PASSWORD}',
+          '--authenticationDatabase',
+          'admin',
+          '--eval',
+          "db.adminCommand('ping')",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 volumes:
   mysql-data:
   redis-data:
+  mongodb_data:

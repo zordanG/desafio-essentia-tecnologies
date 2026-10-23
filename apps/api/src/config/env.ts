@@ -28,6 +28,16 @@ const schema = z.object({
   REDIS_HOST: z.string(),
   REDIS_PORT: z.coerce.number().int().positive().default(6379),
   REDIS_PASSWORD: z.string(),
+  MONGODB_URI: z.string().refine((value) => {
+    try {
+      const url = new URL(value);
+      return (
+        (url.protocol === 'mongodb:' || url.protocol === 'mongodb+srv:') && url.hostname.length > 0
+      );
+    } catch {
+      return false;
+    }
+  }, 'Invalid MONGODB_URI'),
 });
 
 export const env = createEnv(schema);

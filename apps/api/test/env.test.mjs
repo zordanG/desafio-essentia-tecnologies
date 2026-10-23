@@ -28,9 +28,6 @@ test('The API env module loads the repository root .env', async () => {
     // Set test values BEFORE importing the module
     process.env.JWT_SECRET = 'test-secret-at-least-32-characters-long';
     process.env.COOKIE_SECRET = 'test-cookie-secret-at-least-32-chars';
-    process.env.REDIS_HOST = 'localhost';
-    process.env.REDIS_PORT = '6379';
-    process.env.REDIS_PASSWORD = 'redis';
 
     const { env } = await import('../dist/config/env.js');
 
@@ -46,6 +43,7 @@ test('The API env module loads the repository root .env', async () => {
     assert.ok(env.REDIS_HOST.length > 0);
     assert.equal(typeof env.REDIS_PORT, 'number');
     assert.ok(env.REDIS_PASSWORD.length > 0);
+    assert.ok(env.MONGODB_URI.length > 0);
   } finally {
     for (const key of keys) {
       if (previous[key] === undefined) delete process.env[key];

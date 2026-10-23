@@ -1,87 +1,9 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import test, { after, before } from 'node:test';
-import { createApiDatabase } from '../test-support/helpers.mjs';
-import { RedisInstance } from '../dist/config/redis.js';
+import test from 'node:test';
+import { request, setupApi } from '../test-support/api-test-context.mjs';
 
-let app;
-let database;
-let PoolController;
-const cookieJar = new Map();
-
-function updateCookies(headers) {
-  const setCookie = headers['set-cookie'];
-  if (!setCookie) return;
-
-  const cookies = Array.isArray(setCookie) ? setCookie : [setCookie];
-
-  for (const cookie of cookies) {
-    const [pair] = cookie.split(';');
-    const separator = pair.indexOf('=');
-
-    if (separator < 1) continue;
-
-    const name = pair.slice(0, separator).trim();
-    const value = pair.slice(separator + 1).trim();
-
-    // Cookies expirados ou removidos devem sair do jar.
-    if (!value) {
-      cookieJar.delete(name);
-    } else {
-      cookieJar.set(name, value);
-    }
-  }
-}
-
-function cookieHeader() {
-  return [...cookieJar.entries()].map(([name, value]) => `${name}=${value}`).join('; ');
-}
-
-async function request(options) {
-  const headers = {
-    ...(options.headers ?? {}),
-  };
-
-  const cookie = cookieHeader();
-  if (cookie) headers.cookie = cookie;
-
-  const response = await app.inject({
-    ...options,
-    headers,
-  });
-
-  updateCookies(response.headers);
-  return response;
-}
-
-before(async () => {
-  database = await createApiDatabase();
-  Object.assign(process.env, database.env);
-
-  const [api, db] = await Promise.all([
-    import('../dist/api/index.js'),
-    import('../dist/config/db.js'),
-  ]);
-
-  PoolController = db.PoolController;
-  app = api.buildApp();
-
-  await app.ready();
-});
-
-after(async () => {
-  if (app) {
-    await app.close();
-  }
-  if (PoolController) {
-    await PoolController.shutdown();
-  }
-  if (database) {
-    await database.drop();
-  }
-
-  RedisInstance.closeInstance();
-});
+setupApi();
 
 test('Todo CRUD returns the expected contract', async () => {
   const email = `test-${randomUUID()}@example.com`;

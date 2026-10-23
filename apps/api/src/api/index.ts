@@ -16,6 +16,7 @@ import errorHandlerPlugin from './plugins/error.plugin.js';
 import authPlugin from './plugins/auth.plugin.js';
 import rateLimiterPlugin from './plugins/rateLimiter.plugin.js';
 import redisPlugin from './plugins/redis.plugin.js';
+import mongoPlugin from './plugins/mongo.plugin.js';
 
 function buildApp(): FastifyInstance {
   const app = fastify().withTypeProvider<ZodTypeProvider>();
@@ -69,6 +70,7 @@ function buildApp(): FastifyInstance {
 
   // Custom Plugins
   app.register(redisPlugin);
+  app.register(mongoPlugin);
   app.register(rateLimiterPlugin);
   app.register(authPlugin);
   app.register(errorHandlerPlugin);
