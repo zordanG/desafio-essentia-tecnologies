@@ -72,6 +72,28 @@ API `ALLOWED_ORIGINS` list.
 
 `config.json` is public. It must never contain secrets.
 
+### Deployment file
+
+After building, generate the deployed file from `API_BASE_URL`:
+
+```bash
+npm run build -w web
+API_BASE_URL=https://api.example.com npm run runtime-config -w web
+```
+
+On PowerShell:
+
+```powershell
+npm run build -w web
+$env:API_BASE_URL = 'https://api.example.com'
+npm run runtime-config -w web
+```
+
+The script rewrites `dist/web/browser/config.json` using the shared
+`@repo/config-env` validation. `NODE_ENV` defaults to `production`, and the
+script fails when `API_BASE_URL` is missing, is not an absolute HTTP(S) URL or
+a path starting with `/`, or points to localhost while `NODE_ENV=production`.
+
 ## API
 
 The web app reads the API base URL from the runtime configuration. For local
