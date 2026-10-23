@@ -17,18 +17,18 @@ an Angular frontend.
 
 ```text
 Browser
-  |
-  |  config.json (runtime API base URL)
-  v
+   |
+   | config.json (runtime API base URL)
+   v
 Angular web :3000
-  |
-  |  HTTP /todos
-  v
+   |
+   | HTTP requests
+   v
 Fastify API :3001
-  |
-  |  mysql2 pool
-  v
-MySQL 8.4 :3306
+   |                 |
+   | MySQL queries   | Authentication / session operations
+   v                 v
+MySQL 8.4 :3306     Redis :6379
 ```
 
 The API serves the CRUD contract, validates input with Zod and keeps database
@@ -160,6 +160,9 @@ from a public runtime file.
 | `MYSQL_PASSWORD`      | Yes          | -            | Application database password.                                    |
 | `MYSQL_DATABASE`      | Yes          | -            | Database name. The development template uses `desafio`.           |
 | `MYSQL_ROOT_PASSWORD` | Docker/tests | -            | Container administrator password; also used by integration tests. |
+| `REDIS_HOST`          | Yes          | -            | Redis host. Use `localhost` when the API runs outside Docker.     |
+| `REDIS_PORT`          | No           | `6379`       | Redis port.                                                       |
+| `REDIS_PASSWORD`      | Yes          | -            | Redis password.                                                   |
 
 `NODE_ENV` defaults to `production` so a deployment that forgets to set it does
 not expose Swagger UI or stack traces. Locally, use `NODE_ENV=development` as
@@ -167,24 +170,24 @@ not expose Swagger UI or stack traces. Locally, use `NODE_ENV=development` as
 
 ## Root scripts
 
-| Command                     | Description                                                 |
-| --------------------------- | ----------------------------------------------------------- |
-| `npm run dev`               | Starts the API and web app in watch mode.                   |
-| `npm run build`             | Builds every workspace with a build task.                   |
-| `npm run lint`              | Runs ESLint in the workspaces that define a lint task. |
+| Command                     | Description                                                              |
+| --------------------------- | ------------------------------------------------------------------------ |
+| `npm run dev`               | Starts the API and web app in watch mode.                                |
+| `npm run build`             | Builds every workspace with a build task.                                |
+| `npm run lint`              | Runs ESLint in the workspaces that define a lint task.                   |
 | `npm run check-types`       | Runs TypeScript checks in the workspaces that define a check-types task. |
-| `npm run format`            | Formats source, HTML, CSS, Markdown and YAML with Prettier. |
-| `npm test`                  | Runs the test suite. Requires MySQL and the root `.env`.    |
-| `npm run db:build`          | Compiles the `@repo/db-tools` CLI.                          |
-| `npm run db:up`             | Starts the MySQL container.                                 |
-| `npm run db:down`           | Stops the MySQL container.                                  |
-| `npm run db:logs`           | Follows the MySQL container logs.                           |
-| `npm run db:migrate`        | Applies pending migrations.                                 |
-| `npm run db:migrate:status` | Lists migrations and their state.                           |
-| `npm run db:migrate:down`   | Rolls back the latest migration.                            |
-| `npm run db:reset`          | Drops and recreates the API-owned tables.                   |
-| `npm run db:seed`           | Runs the available seed files.                              |
-| `npm run db:seed:list`      | Lists the available seed files.                             |
+| `npm run format`            | Formats source, HTML, CSS, Markdown and YAML with Prettier.              |
+| `npm test`                  | Runs the test suite. Requires MySQL and the root `.env`.                 |
+| `npm run db:build`          | Compiles the `@repo/db-tools` CLI.                                       |
+| `npm run db:up`             | Starts the MySQL container.                                              |
+| `npm run db:down`           | Stops the MySQL container.                                               |
+| `npm run db:logs`           | Follows the MySQL container logs.                                        |
+| `npm run db:migrate`        | Applies pending migrations.                                              |
+| `npm run db:migrate:status` | Lists migrations and their state.                                        |
+| `npm run db:migrate:down`   | Rolls back the latest migration.                                         |
+| `npm run db:reset`          | Drops and recreates the API-owned tables.                                |
+| `npm run db:seed`           | Runs the available seed files.                                           |
+| `npm run db:seed:list`      | Lists the available seed files.                                          |
 
 The migration, seed and reset scripts build `@repo/db-tools` before running and
 target `apps/api`. Flags are forwarded after `--`, for example:
@@ -196,15 +199,19 @@ npm run db:migrate -- --steps 1
 
 ## API
 
-| Method   | Path         | Result                         |
-| -------- | ------------ | ------------------------------ |
-| `GET`    | `/health`    | `{ "status": "ok" }`           |
-| `GET`    | `/docs`      | Swagger UI, development only.  |
-| `GET`    | `/todos`     | Lists tasks, newest first.     |
-| `POST`   | `/todos`     | Creates a task, returns `201`. |
-| `GET`    | `/todos/:id` | Returns one task.              |
-| `PATCH`  | `/todos/:id` | Updates a task.                |
-| `DELETE` | `/todos/:id` | Deletes a task, returns `204`. |
+| Method   | Path             | Result                                       |
+| -------- | ---------------- | -------------------------------------------- |
+| `GET`    | `/health`        | `{ "status": "ok" }`                         |
+| `GET`    | `/docs`          | Swagger UI, development only.                |
+| `GET`    | `/api/todos`     | Lists tasks, newest first.                   |
+| `POST`   | `/api/todos`     | Creates a task, returns `201`.               |
+| `GET`    | `/api/todos/:id` | Returns one task.                            |
+| `PATCH`  | `/api/todos/:id` | Updates a task.                              |
+| `DELETE` | `/api/todos/:id` | Deletes a task, returns `204`.               |
+| `POST`   | `/auth/register` | Creates an account and starts a session.     |
+| `POST`   | `/auth/login`    | Authenticates the user and starts a session. |
+| `POST`   | `/auth/refresh`  | Refreshes the authentication session.        |
+| `POST`   | `/auth/logout`   | Ends the current session.                    |
 
 Errors use one shape:
 
@@ -395,7 +402,6 @@ the root `.env`. The web build artifact is not ready for a remote API until its
   and invalidate its cache.
 - **CORS errors in the browser:** add the web origin to `ALLOWED_ORIGINS` and
   restart the API. With credentials enabled, `ALLOWED_ORIGINS` must list the
-  exact web origin; wildcards are not allowed. With credentials enabled, `ALLOWED_ORIGINS` must list the
   exact web origin; wildcards are not allowed.
 - **`db:reset` refuses to run:** it requires `--yes` for non-interactive use and
   `--force` when `NODE_ENV=production`.
@@ -414,7 +420,8 @@ the root `.env`. The web build artifact is not ready for a remote API until its
   migrations instead of a separate migration library.
 - Writes are not optimistic. The UI reflects the API response, which keeps the
   board predictable and easier to test.
-- Authentication will be introduced as a follow-up: the current scope is a
-  single-user board and authentication and multi-tenancy are not implemented.
-  The Swagger definition no longer advertises bearer auth until that work
-  starts.
+- Authentication is handled by the API. Protected task operations require an
+  authenticated session, and the API manages session refresh and logout.
+- Redis supports the API's authentication-related operations.
+- The web app communicates with the API through its public runtime
+  configuration; server-side secrets remain outside the browser.

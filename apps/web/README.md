@@ -99,13 +99,17 @@ a path starting with `/`, or points to localhost while `NODE_ENV=production`.
 The web app reads the API base URL from the runtime configuration. For local
 development it points to `http://localhost:3001`.
 
-| Method   | Path         | Result                        |
-| -------- | ------------ | ----------------------------- |
-| `GET`    | `/todos`     | List tasks, newest first.     |
-| `POST`   | `/todos`     | Create a task, returns `201`. |
-| `GET`    | `/todos/:id` | Return one task.              |
-| `PATCH`  | `/todos/:id` | Update a task.                |
-| `DELETE` | `/todos/:id` | Delete a task, returns `204`. |
+| Method   | Path             | Result                                       |
+| -------- | ---------------- | -------------------------------------------- |
+| `GET`    | `/api/todos`     | List tasks, newest first.                    |
+| `POST`   | `/api/todos`     | Create a task, returns `201`.                |
+| `GET`    | `/api/todos/:id` | Return one task.                             |
+| `PATCH`  | `/api/todos/:id` | Update a task.                               |
+| `DELETE` | `/api/todos/:id` | Delete a task, returns `204`.                |
+| `POST`   | `/auth/register` | Creates an account and starts a session.     |
+| `POST`   | `/auth/login`    | Authenticates the user and starts a session. |
+| `POST`   | `/auth/refresh`  | Refreshes the authentication session.        |
+| `POST`   | `/auth/logout`   | Ends the current session.                    |
 
 Updates are not optimistic: the board waits for the API response and replaces
 the task with the result. This keeps behavior predictable and testable.

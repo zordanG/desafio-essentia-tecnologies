@@ -43,15 +43,19 @@ Run them from this directory, or from the repository root through Turborepo.
 
 ## Endpoints
 
-| Method   | Path         | Response                        |
-| -------- | ------------ | ------------------------------- |
-| `GET`    | `/health`    | `{ "status": "ok" }`            |
-| `GET`    | `/docs`      | Swagger UI (not in production). |
-| `POST`   | `/todos`     | Creates a task.                 |
-| `GET`    | `/todos`     | Lists tasks, newest first.      |
-| `GET`    | `/todos/:id` | Returns one task.               |
-| `PATCH`  | `/todos/:id` | Updates a task.                 |
-| `DELETE` | `/todos/:id` | Deletes a task.                 |
+| Method   | Path             | Response                                     |
+| -------- | ---------------- | -------------------------------------------- |
+| `GET`    | `/health`        | `{ "status": "ok" }`                         |
+| `GET`    | `/docs`          | Swagger UI (not in production).              |
+| `GET`    | `/api/todos`     | List tasks, newest first.                    |
+| `POST`   | `/api/todos`     | Creates a task.                              |
+| `GET`    | `/api/todos/:id` | Returns one task.                            |
+| `PATCH`  | `/api/todos/:id` | Updates a task.                              |
+| `DELETE` | `/api/todos/:id` | Deletes a task                               |
+| `POST`   | `/auth/register` | Creates an account and starts a session.     |
+| `POST`   | `/auth/login`    | Authenticates the user and starts a session. |
+| `POST`   | `/auth/refresh`  | Refreshes the authentication session.        |
+| `POST`   | `/auth/logout`   | Ends the current session.                    |
 
 Logs are written as one JSON line per event on stdout.
 
