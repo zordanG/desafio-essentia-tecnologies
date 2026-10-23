@@ -131,6 +131,8 @@ h1 {
   transition:
     background-color 160ms ease,
     border-color 160ms ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .task-card--completed {
@@ -139,6 +141,15 @@ h1 {
 
 .task-card[aria-busy='true'] {
   opacity: 0.7;
+}
+
+.task-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: var(--metadata-color, transparent);
+  pointer-events: none;
 }
 
 .task-checkbox {

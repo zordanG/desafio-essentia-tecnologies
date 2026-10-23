@@ -10,6 +10,7 @@ import { TodoService } from '../../../shared/services/todo.service';
 import { TodoConfirmDialog } from '../todo-confirm-dialog/todo-confirm-dialog';
 import { TodoFormDialog } from '../todo-form-dialog/todo-form-dialog';
 import { TodoBoard } from './todo-board';
+import { TodoMetadataDialog } from '../todo-metadata-dialog/todo-metadata-dialog';
 
 const TASK: Task = {
   id: '9b2f4c1e-6f38-4f6e-9f8a-3a7c1d2e4b5a',
@@ -25,6 +26,10 @@ let todoService: {
   create: ReturnType<typeof vi.fn>;
   update: ReturnType<typeof vi.fn>;
   remove: ReturnType<typeof vi.fn>;
+  getMetadata: ReturnType<typeof vi.fn>;
+  putMetadata: ReturnType<typeof vi.fn>;
+  patchMetadata: ReturnType<typeof vi.fn>;
+  removeMetadata: ReturnType<typeof vi.fn>;
 };
 let listSubject: Subject<Task[]>;
 let dialog: { open: ReturnType<typeof vi.fn> };
@@ -38,6 +43,16 @@ describe('TodoBoard', () => {
       create: vi.fn(() => of(TASK)),
       update: vi.fn(() => of(TASK)),
       remove: vi.fn(() => of(void 0)),
+      getMetadata: vi.fn(() =>
+        of({
+          taskId: TASK.id,
+          tags: [],
+          updatedAt: '2026-10-23T09:00:00.000Z',
+        }),
+      ),
+      putMetadata: vi.fn(),
+      patchMetadata: vi.fn(),
+      removeMetadata: vi.fn(() => of(void 0)),
     };
     dialog = { open: vi.fn(() => ({ afterClosed: () => of(undefined) })) };
     snackBar = { open: vi.fn() };
@@ -218,6 +233,66 @@ describe('TodoBoard', () => {
     fixture.detectChanges();
 
     expect(todoService.list).toHaveBeenCalledTimes(2);
+  });
+
+  it('Loads the metadata color for a task', () => {
+    todoService.getMetadata.mockReturnValue(
+      of({
+        taskId: TASK.id,
+        tags: ['urgent'],
+        color: '#336699',
+        updatedAt: '2026-10-23T09:00:00.000Z',
+      }),
+    );
+
+    const fixture = createBoard();
+    flushTasks(fixture, [TASK]);
+    fixture.detectChanges();
+
+    expect(todoService.getMetadata).toHaveBeenCalledWith(TASK.id);
+    expect(fixture.componentInstance.metadataColors()[TASK.id]).toBe('#336699');
+  });
+
+  it('Leaves tasks without a metadata color uncolored', () => {
+    const fixture = createBoard();
+    flushTasks(fixture, [TASK]);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.metadataColors()[TASK.id]).toBeUndefined();
+  });
+
+  it('Opens the metadata dialog for a task', () => {
+    const fixture = createBoard();
+    flushTasks(fixture, [TASK]);
+
+    findButton(fixture, `Edit metadata for ${TASK.title}`).click();
+
+    expect(dialog.open).toHaveBeenCalledWith(
+      TodoMetadataDialog,
+      expect.objectContaining({
+        data: TASK,
+      }),
+    );
+  });
+
+  it('Displays the metadata color on the task card', () => {
+    todoService.getMetadata.mockReturnValue(
+      of({
+        taskId: TASK.id,
+        tags: [],
+        color: '#336699',
+        updatedAt: '2026-10-23T09:00:00.000Z',
+      }),
+    );
+
+    const fixture = createBoard();
+    flushTasks(fixture, [TASK]);
+    fixture.detectChanges();
+
+    const card = fixture.nativeElement.querySelector('.task-card') as HTMLElement;
+
+    expect(card).toBeTruthy();
+    expect(card.style.getPropertyValue('--metadata-color')).toBe('#336699');
   });
 });
 

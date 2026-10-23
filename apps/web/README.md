@@ -1,28 +1,43 @@
-# `web`
+# TechX Tasks — Web
 
-Angular task management app for TechX Tasks.
+Angular application for managing tasks through the TechX Tasks API.
 
 ## Requirements
 
 - Node.js >= 24
 - The API running at `http://localhost:3001`
-- `ALLOWED_ORIGINS` in the repository root `.env` including
-  `http://localhost:3000`
+- `ALLOWED_ORIGINS` in the repository root `.env` including `http://localhost:3000`
 
 ## Features
 
-- Lists every registered task, newest first.
-- Shows loading, empty and error states.
-- Creates and edits tasks in a Material dialog with title and description
-  validation.
+### Task management
+
+- Lists all registered tasks, newest first.
+- Displays loading, empty, and error states.
+- Creates and edits tasks through Angular Material dialogs, with title and description validation.
 - Deletes tasks after a confirmation dialog.
-- Marks tasks complete or open inline, with a text status that does not rely on
-  color alone.
-- Refreshes the list from the API on demand.
-- Disables the affected controls while a task request is in flight.
-- Keeps a single-column layout on small screens and adds desktop spacing with
-  `min-width` breakpoints.
+- Marks tasks as complete or open inline.
+- Communicates task status through text and icons, without relying on color alone.
+- Refreshes the task list from the API on demand.
+- Disables affected controls while requests are in flight.
+- Waits for API responses before applying changes, avoiding optimistic updates.
+
+### Authentication and feedback
+
+- Provides login and registration forms with validation.
+- Displays authentication errors and other user feedback through `MatSnackBar`.
+- Uses the shared API error handling layer to standardize HTTP, network, and client errors.
+
+### Responsive UI and accessibility
+
+- Uses Angular Material components and CDK utilities.
+- Maintains a single-column layout on small screens and adds spacing at desktop breakpoints.
 - Uses full-screen dialogs on small screens.
+- Provides accessible labels for icon-only buttons.
+- Restores focus to the triggering element after dialogs close.
+- Supports light and dark themes, following the operating system preference by default.
+- Persists the selected theme in `localStorage` under `task-board-theme`.
+- Keeps `color-scheme` and `meta[name="theme-color"]` synchronized with the active theme.
 
 ## Development
 
@@ -32,26 +47,29 @@ From the repository root:
 npm run dev -w web
 ```
 
-Or start the API and the web app together with `npm run dev`.
+Or start the API and web app together:
+
+```bash
+npm run dev
+```
 
 The development server runs at `http://localhost:3000`.
 
 ## Scripts
 
-| Command               | Description                            |
-| --------------------- | -------------------------------------- |
-| `npm run dev`         | Starts the Angular development server. |
-| `npm run build`       | Creates a production build.            |
-| `npm run lint`        | Runs ESLint.                           |
-| `npm run check-types` | Runs the Angular compiler.             |
-| `npm test`            | Runs the unit tests.                   |
+| Command               | Description                                 |
+| --------------------- | ------------------------------------------- |
+| `npm run dev`         | Starts the Angular development server.      |
+| `npm run build`       | Creates a production build.                 |
+| `npm run lint`        | Runs ESLint.                                |
+| `npm run check-types` | Runs the Angular compiler and checks types. |
+| `npm test`            | Runs the unit tests.                        |
 
-Run them from this directory, or from the repository root through Turborepo.
+Run the commands from this directory or from the repository root through Turborepo.
 
 ## Runtime configuration
 
-The app loads `config.json` from its public root during startup, before the
-board renders. That file sets the API base URL:
+The application loads `config.json` from its public root during startup, before rendering the task board. This file defines the API base URL:
 
 ```json
 {
@@ -59,22 +77,19 @@ board renders. That file sets the API base URL:
 }
 ```
 
-`src/app/core/config/app-config.service.ts` resolves the file relative to the
-application base path, validates `apiBaseUrl`, and removes a trailing slash.
+The configuration is handled by `src/app/core/config/app-config.service.ts`, which resolves the file relative to the application base path, validates `apiBaseUrl`, and removes a trailing slash.
 
-`public/config.json` is copied to the build output. For a deployment, replace the
-`config.json` published next to `index.html` with the API URL of that environment.
-The same build can be promoted without rebuilding. Serve `config.json` with
-`Cache-Control: no-cache` so a new deployment is not hidden by a stale cache.
+`public/config.json` is copied to the build output. For deployment, replace the `config.json` published alongside `index.html` with the API URL for the target environment. This allows the same build to be promoted between environments without rebuilding.
 
-When the web app and the API run on different origins, add the web origin to the
-API `ALLOWED_ORIGINS` list.
+Serve `config.json` with `Cache-Control: no-cache` to prevent stale runtime configuration from being reused after deployment.
 
-`config.json` is public. It must never contain secrets.
+When the web app and API run on different origins, add the web app's origin to the API's `ALLOWED_ORIGINS` list.
 
-### Deployment file
+**Security:** `config.json` is public and must never contain secrets.
 
-After building, generate the deployed file from `API_BASE_URL`:
+### Deployment configuration
+
+After building, generate the deployment configuration from `API_BASE_URL`:
 
 ```bash
 npm run build -w web
@@ -89,61 +104,63 @@ $env:API_BASE_URL = 'https://api.example.com'
 npm run runtime-config -w web
 ```
 
-The script rewrites `dist/web/browser/config.json` using the shared
-`@repo/config-env` validation. `NODE_ENV` defaults to `production`, and the
-script fails when `API_BASE_URL` is missing, is not an absolute HTTP(S) URL or
-a path starting with `/`, or points to localhost while `NODE_ENV=production`.
+The script rewrites `dist/web/browser/config.json` using the shared `@repo/config-env` validation.
+
+`NODE_ENV` defaults to `production`. The script fails if `API_BASE_URL` is missing, is not an absolute HTTP(S) URL or a path starting with `/`, or points to localhost while `NODE_ENV=production`.
 
 ## API
 
-The web app reads the API base URL from the runtime configuration. For local
-development it points to `http://localhost:3001`.
+The web app reads the API base URL from the runtime configuration. During local development, it defaults to `http://localhost:3001`.
 
 | Method   | Path             | Result                                       |
 | -------- | ---------------- | -------------------------------------------- |
-| `GET`    | `/api/todos`     | List tasks, newest first.                    |
-| `POST`   | `/api/todos`     | Create a task, returns `201`.                |
-| `GET`    | `/api/todos/:id` | Return one task.                             |
-| `PATCH`  | `/api/todos/:id` | Update a task.                               |
-| `DELETE` | `/api/todos/:id` | Delete a task, returns `204`.                |
+| `GET`    | `/api/todos`     | Lists tasks, newest first.                   |
+| `POST`   | `/api/todos`     | Creates a task and returns `201`.            |
+| `GET`    | `/api/todos/:id` | Returns a single task.                       |
+| `PATCH`  | `/api/todos/:id` | Updates a task.                              |
+| `DELETE` | `/api/todos/:id` | Deletes a task and returns `204`.            |
 | `POST`   | `/auth/register` | Creates an account and starts a session.     |
 | `POST`   | `/auth/login`    | Authenticates the user and starts a session. |
 | `POST`   | `/auth/refresh`  | Refreshes the authentication session.        |
 | `POST`   | `/auth/logout`   | Ends the current session.                    |
 
-Updates are not optimistic: the board waits for the API response and replaces
-the task with the result. This keeps behavior predictable and testable.
+### Error handling
 
 The global API error interceptor maps failures to `ApiHttpError`:
 
-- API errors keep `code`, `message` and `status`.
+- API errors preserve `code`, `message`, and `status`.
 - Network failures use `code: "NETWORK_ERROR"` and `status: 0`.
 - HTTP failures without an API error body use `code: "HTTP_ERROR"`.
 - Unknown client errors use `code: "CLIENT_ERROR"`.
 
-Success and failure feedback is announced through `MatSnackBar`.
+Success and failure feedback is presented through Angular Material's `MatSnackBar`.
 
 ## Theme
 
-When there is no stored preference, the interface follows the operating
-system color scheme. The toolbar toggle switches between light and dark
-themes, and the choice is stored in `localStorage` under `task-board-theme`.
-`color-scheme` and `meta[name="theme-color"]` stay in sync with the active
-theme.
+When no theme preference is stored, the interface follows the operating system's color scheme.
 
-## UI
+The toolbar toggle switches between light and dark themes. The selected theme is stored in `localStorage` under `task-board-theme`.
 
-- [Angular Material](https://material.angular.io/) components and CDK utilities.
-- Roboto and Material Symbols Rounded are self-hosted through Fontsource.
-- The todo board lives in `src/app/components/todos`.
-- Icon-only buttons have `aria-label`, dialogs restore focus to their trigger,
-  and completion is communicated by both an icon and text.
+The application keeps the CSS `color-scheme` property and `meta[name="theme-color"]` synchronized with the active theme.
+
+## UI and structure
+
+- **Angular Material:** UI components and CDK utilities.
+- **Typography:** Roboto and Material Symbols Rounded, self-hosted through Fontsource.
+- **Task board:** `src/app/components/todos`.
+- **Runtime configuration:** `src/app/core/config/app-config.service.ts`.
+
+The UI uses accessible labels for icon-only buttons, restores focus after dialogs, and communicates task completion through both icons and text.
 
 ## Tests
 
-Unit tests use Vitest. Service tests cover the HTTP contract with
-`HttpTestingController`, and component tests use a stubbed `TodoService` to
-focus on UI behavior.
+Unit tests use Vitest.
+
+- **Service tests** verify HTTP contracts using `HttpTestingController`.
+- **Component tests** use stubbed services to isolate UI behavior.
+- **Authentication tests** cover form validation, submission behavior, navigation, loading states, and error feedback through `MatSnackBar`.
+
+Run the tests with:
 
 ```bash
 npm test

@@ -29,6 +29,7 @@ export class AuthService {
 
   private readonly _user = signal<User | null>(null);
   private readonly _initialized = signal(false);
+  private readonly initialized$ = toObservable(this._initialized);
 
   readonly user = this._user.asReadonly();
   readonly isAuthenticated = computed(() => this._user() !== null);
@@ -50,7 +51,7 @@ export class AuthService {
   }
 
   waitUntilInitialized(): Observable<boolean> {
-    return toObservable(this._initialized).pipe(
+    return this.initialized$.pipe(
       filter((initialized) => initialized),
       take(1),
       map(() => true),

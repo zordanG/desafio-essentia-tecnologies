@@ -74,6 +74,7 @@
             class="task-card"
             [class.task-card--completed]="task.completed"
             [attr.aria-busy]="isPending(task.id)"
+            [style.--metadata-color]="metadataColors()[task.id] ?? 'transparent'"
           >
             <mat-checkbox
               class="task-checkbox"
@@ -125,6 +126,16 @@
                 (click)="confirmDelete(task)"
               >
                 <mat-icon aria-hidden="true">delete</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                type="button"
+                [attr.aria-label]="'Edit metadata for ' + task.title"
+                [disabled]="isPending(task.id)"
+                (click)="openMetadataDialog(task)"
+              >
+                <mat-icon aria-hidden="true">label</mat-icon>
               </button>
             </div>
           </article>

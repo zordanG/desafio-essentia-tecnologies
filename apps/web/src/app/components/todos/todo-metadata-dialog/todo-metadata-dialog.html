@@ -1,0 +1,106 @@
+<h2 mat-dialog-title>Task metadata</h2>
+
+<mat-dialog-content class="metadata-content">
+  <p class="task-reference">
+    Metadata for <strong>{{ task.title }}</strong>
+  </p>
+
+  @if (loading()) {
+    <div class="loading-state" role="status">
+      <mat-progress-spinner mode="indeterminate" diameter="32" />
+      <span>Loading metadata…</span>
+    </div>
+  } @else {
+    @if (error()) {
+      <p class="error-message" role="alert">{{ error() }}</p>
+    }
+
+    <form id="metadata-form" (ngSubmit)="save()">
+      <mat-form-field appearance="outline">
+        <mat-label>Tags</mat-label>
+        <textarea
+          matInput
+          name="tags"
+          [(ngModel)]="tagsInput"
+          rows="3"
+          placeholder="frontend, urgent, research"
+        ></textarea>
+        <mat-hint>Separate tags with commas or new lines. Maximum 30.</mat-hint>
+      </mat-form-field>
+
+      <div class="color-field">
+        <mat-form-field appearance="outline">
+          <mat-label>Color (hexadecimal)</mat-label>
+          <input
+            matInput
+            name="color"
+            [(ngModel)]="colorInput"
+            placeholder="#336699"
+            maxlength="7"
+          />
+          <mat-hint>Optional. Leave empty to remove the color.</mat-hint>
+        </mat-form-field>
+
+        <div class="color-picker">
+          <input
+            type="color"
+            [value]="isValidColor(colorInput) ? colorInput : '#336699'"
+            (input)="onColorPickerChange($any($event.target).value)"
+            aria-label="Choose metadata color"
+          />
+        </div>
+      </div>
+
+      <mat-form-field appearance="outline" class="json-field">
+        <mat-label>Custom fields (JSON object)</mat-label>
+        <textarea
+          matInput
+          name="customFields"
+          [(ngModel)]="customFieldsInput"
+          rows="7"
+          spellcheck="false"
+        ></textarea>
+        <mat-hint> Use valid JSON, e.g. {{ '{' }}"priority": "high"{{ '}' }}. </mat-hint>
+      </mat-form-field>
+
+      @if (updatedAt) {
+        <p class="updated-at">Last updated: {{ updatedAt }}</p>
+      }
+    </form>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close [disabled]="saving() || deleting()">
+    Cancel
+  </button>
+
+  @if (!loading() && exists()) {
+    <button
+      mat-button
+      type="button"
+      class="delete-action"
+      [disabled]="saving() || deleting()"
+      (click)="deleteMetadata()"
+    >
+      @if (deleting()) {
+        Deleting…
+      } @else {
+        Delete metadata
+      }
+    </button>
+  }
+
+  <button
+    mat-flat-button
+    type="submit"
+    form="metadata-form"
+    [disabled]="loading() || saving() || deleting()"
+  >
+    @if (saving()) {
+      Saving…
+    } @else {
+      Save metadata
+    }
+  </button>
+</mat-dialog-actions>

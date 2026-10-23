@@ -3,6 +3,11 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AppConfigService } from '../../core/config/app-config.service';
 import { CreateTaskDto, Task, UpdateTaskDto } from '../models/task.model';
+import {
+  PatchTodoMetadataDto,
+  PutTodoMetadataDto,
+  TodoMetadata,
+} from '../models/todo-metadata.model';
 
 @Injectable({
   providedIn: 'root',
@@ -30,5 +35,21 @@ export class TodoService {
 
   remove(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  getMetadata(taskId: string): Observable<TodoMetadata> {
+    return this.http.get<TodoMetadata>(`${this.baseUrl}/${taskId}/metadata`);
+  }
+
+  putMetadata(taskId: string, payload: PutTodoMetadataDto): Observable<TodoMetadata> {
+    return this.http.put<TodoMetadata>(`${this.baseUrl}/${taskId}/metadata`, payload);
+  }
+
+  patchMetadata(taskId: string, payload: PatchTodoMetadataDto): Observable<TodoMetadata> {
+    return this.http.patch<TodoMetadata>(`${this.baseUrl}/${taskId}/metadata`, payload);
+  }
+
+  removeMetadata(taskId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${taskId}/metadata`);
   }
 }

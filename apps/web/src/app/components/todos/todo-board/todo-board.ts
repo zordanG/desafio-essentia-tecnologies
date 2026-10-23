@@ -19,6 +19,8 @@ import {
   TodoFormDialogData,
   TodoFormDialogResult,
 } from '../todo-form-dialog/todo-form-dialog';
+import { TodoMetadata } from '../../../shared/models/todo-metadata.model';
+import { TodoMetadataDialog } from '../todo-metadata-dialog/todo-metadata-dialog';
 
 @Component({
   selector: 'app-todo-board',
@@ -37,6 +39,7 @@ export class TodoBoard implements OnInit {
   readonly error = signal<string | null>(null);
   readonly pendingTaskIds = signal<ReadonlySet<string>>(new Set());
   readonly openCount = computed(() => this.tasks().filter((task) => !task.completed).length);
+  readonly metadataColors = signal<Record<string, string>>({});
 
   ngOnInit(): void {
     this.loadTasks();
@@ -50,7 +53,10 @@ export class TodoBoard implements OnInit {
       .list()
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: (tasks) => this.tasks.set(tasks),
+        next: (tasks) => {
+          this.tasks.set(tasks);
+          this.loadMetadataColors(tasks);
+        },
         error: (error: unknown) => {
           this.tasks.set([]);
           this.error.set(this.messageFor(error, 'Unable to load tasks.'));
@@ -132,6 +138,32 @@ export class TodoBoard implements OnInit {
     return this.pendingTaskIds().has(id);
   }
 
+  openMetadataDialog(task: Task): void {
+    const dialogRef = this.dialog.open<TodoMetadataDialog, Task, TodoMetadata | null>(
+      TodoMetadataDialog,
+      {
+        ...this.dialogConfig,
+        data: task,
+      },
+    );
+
+    dialogRef.afterClosed().subscribe((result: TodoMetadata | null | undefined) => {
+      if (result === undefined) return; // Cancelado
+
+      this.metadataColors.update((colors) => {
+        const updated = { ...colors };
+
+        if (result === null || !result.color) {
+          delete updated[task.id];
+        } else {
+          updated[task.id] = result.color;
+        }
+
+        return updated;
+      });
+    });
+  }
+
   private createTask(payload: CreateTaskDto): void {
     this.creating.set(true);
 
@@ -205,6 +237,26 @@ export class TodoBoard implements OnInit {
 
   private messageFor(error: unknown, fallback: string): string {
     return error instanceof ApiHttpError ? error.message : fallback;
+  }
+
+  private loadMetadataColors(tasks: Task[]): void {
+    this.metadataColors.set({});
+
+    for (const task of tasks) {
+      this.todoService.getMetadata(task.id).subscribe({
+        next: (metadata) => {
+          if (metadata.color) {
+            this.metadataColors.update((colors) => ({
+              ...colors,
+              [task.id]: metadata.color!,
+            }));
+          }
+        },
+        error: () => {
+          // A tarefa pode não ter metadata; nesse caso, não exibe cor.
+        },
+      });
+    }
   }
 
   private readonly dialogConfig = {
