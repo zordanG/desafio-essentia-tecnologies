@@ -1,9 +1,28 @@
 import { env } from './config/env.js';
+import { logger } from './config/logger.js';
+import { buildApp } from './api/index.js';
 
-import Fastify from 'fastify';
+const app = buildApp();
 
-const app = Fastify({ logger: true });
+try {
+  const address = await app.listen({ port: env.PORT, host: env.HOST });
+  logger.info('Server ready', { address });
+} catch (error) {
+  logger.error('Failed to start server', { err: error, port: env.PORT });
+  process.exitCode = 1;
+}
 
-app.get('/health', async () => ({ status: 'ok' }));
+async function shutdownEverything(signal: string): Promise<void> {
+  logger.info('Shutting down', { signal });
 
-await app.listen({ port: env.PORT, host: env.HOST });
+  try {
+    await app.close();
+  } catch (error) {
+    logger.error('Failed to close server', { err: error });
+    process.exitCode = 1;
+  }
+}
+
+for (const signal of ['SIGTERM', 'SIGINT'] as const) {
+  process.once(signal, () => void shutdownEverything(signal));
+}

@@ -11,8 +11,14 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@fastify/cors": "^11.3.1",
+    "@fastify/helmet": "^13.2.0",
+    "@fastify/swagger": "^9.9.2",
+    "@fastify/swagger-ui": "^6.1.2",
     "@repo/config-env": "*",
+    "@repo/logger": "*",
     "fastify": "^5.12.7",
+    "fastify-type-provider-zod": "^7.0.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
